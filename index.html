@@ -338,8 +338,8 @@
 
             <label for="make">MAKE</label>
             <select id="make" onchange="updateOptions()">
-                <option value="Shinkawa">Shinkawa (CBT-420)</option>
-                <option value="Forbes Marshall">Forbes Marshall (FM-LPS)</option>
+                <option value="Shinkawa">Shinkawa (CBT-420 Series)</option>
+                <option value="Forbes Marshall">Forbes Marshall (FM LPS-420 Series)</option>
             </select>
 
             <label for="sensorQty">QUANTITY (No. of Sensors)</label>
@@ -505,7 +505,7 @@
             let range = document.getElementById("range");
             range.innerHTML = "";
             document.getElementById("shinkawaOpts").style.display = make === "Shinkawa" ? "block" : "none";
-            let ranges = make === "Shinkawa" ? [10, 20, 30, 40, 50, 60, 70, 80, 90, 100] : [10, 20, 30, 40, 50];
+            let ranges = make === "Shinkawa" ? [10, 20, 30, 40, 50, 60, 70, 80, 90, 100] : [10, 15, 20, 25, 30, 40, 50];
             ranges.forEach(v => {
                 let opt = document.createElement("option");
                 opt.value = v;
@@ -614,10 +614,10 @@
                 const paddedRange = range === "100" ? "100" : range.padStart(3, '0');
 
                 const measureText = measure === "P" ? "PEAK" : "RMS";
-                out += `Full Code: CBT-420-${paddedRange}-${yy}-01\nQuantity: ${qty}\nRange: ${range} mm/sec (${measureText})\nCBT-420 Series Loop powered sensor with ${range} mm/sec ${measureText} output, 4-20 mA for PLC/DCS connectivity, with 2 pin MS connector, MOC: SS316L, with grub screw 1/4' 28 UNF female`;
+                out += `Full Code: CBT-420-${paddedRange}-${yy}-01\nQuantity: ${qty}\nRange: 0-${range} mm/sec (${measureText})\n\nCBT-420 Series Loop powered sensor with range 0-${range} mm/sec ${measureText}, output 4-20 mA for PLC/DCS connectivity, with 2 pin MS connector, MOC: SS316L, with grub screw 1/4' 28 UNF female`;
             } else { // Forbes Marshall
                 const measureText = measure === "P" ? "PEAK" : "RMS";
-                out += `Full Code: FM-LPS-420-${range}B-${measure}-W\nQuantity: ${qty}\nRange: ${range} mm/sec (${measureText})\nFM-LPS Loop powered sensor with ${range} mm/sec ${measureText} output, 4-20 mA, for PLC/DCS integration`;
+                out += `Full Code: FM-LPS-420-${range}B-${measure}-W\nQuantity: ${qty}\nRange: 0-${range} mm/sec (${measureText})\n\nFM-LPS Loop powered sensor with range 0-${range} mm/sec ${measureText}, output 4-20 mA for PLC/DCS integration`;
 
             }
 
@@ -680,7 +680,7 @@
                 return;
             }
 
-            padCodePre.innerText = `FM std mounting pad 30x30x15, MOC: ${padMoc}`;
+            padCodePre.innerText = `FM-MP-001\nFM std mounting pad 30x30x15, MOC: ${padMoc}`;
         }
 
         function showMountStudCode() {
@@ -697,7 +697,7 @@
             const threadInfo = threadStd || "(not specified)";
             const depthInfo = threadDepth ? `${threadDepth} mm` : "(not specified)";
 
-            const output = `Mounting Stud with MOC: ${studMoc}, Thread details: ${threadInfo}, Depth: ${depthInfo}`;
+            const output = `FM-MS-001\nMounting Stud with MOC: ${studMoc}, Thread details: ${threadInfo}, Depth: ${depthInfo}`;
             studCodePre.innerText = output;
             console.log("Button clicked", threadStd, threadDepth, studMoc);
 
@@ -734,7 +734,7 @@
             let glands = jbIn + jbOut;
             let jbQty = Math.ceil(qty / jbIn); // Calculate required number of JBs
 
-            let out = `Junction Box: ${jbMoc}, ${jbIn} in ${jbOut} out\nTerminals: (JBin)${jbIn} * (Axis)3 + (20% Spares)${jbIn * 3 * 0.2}= ${terminals}\nGlands: ${glands}\nGland MOC: ${glandMoc}\nJB Quantity: ${jbQty}`;
+            let out = `Junction Box: ${jbMoc}, ${jbIn} in ${jbOut} out\nTerminals(including 20% Spares): (${jbIn * 3} + ${jbIn * 3 * 0.2}) = ${terminals}\nGlands: ${jbIn} In + ${jbOut} Out = ${glands}\nGland MOC: ${glandMoc}\nJB Quantity: ${jbQty}`;
             jbOutputPre.innerText = out;
         }
 
@@ -764,7 +764,7 @@
             summaryText += `    - Area: ${document.getElementById("area").value}\n`;
             summaryText += `    - Make: ${document.getElementById("make").value}\n`;
             summaryText += `    - Quantity: ${document.getElementById("sensorQty").value}\n`;
-            summaryText += `    - Range: ${document.getElementById("range").value} mm/sec\n`;
+            summaryText += `    - Range: 0-${document.getElementById("range").value} mm/sec\n`;
 
             const measureValue = document.getElementById("measurement").value;
             const measureText = measureValue === "P" ? "PEAK" : "RMS";
