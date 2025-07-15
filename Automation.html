@@ -1,0 +1,849 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Complete Vibration Sensor Configuration</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* General Body and Layout */
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: linear-gradient(135deg, #eef2f6 0%, #dae3ed 100%); /* Subtle gradient background */
+            padding: 20px;
+            color: #333;
+            line-height: 1.6;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            max-width: 850px; /* Slightly wider container */
+            width: 100%;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        h2 {
+            font-family: 'Montserrat', sans-serif; /* Use Montserrat for main heading */
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 35px;
+            font-weight: 700;
+            font-size: 2.5rem; /* Larger main heading */
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1); /* More pronounced shadow */
+            letter-spacing: 0.5px;
+        }
+
+        /* Section Styling */
+        .section {
+            background: #ffffff;
+            padding: 35px; /* Increased padding */
+            margin-bottom: 30px; /* Increased margin */
+            border-radius: 20px; /* Even more rounded corners */
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12); /* Stronger, softer shadow */
+            border: 1px solid #d0dbe8; /* Slightly darker subtle border */
+            transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out; /* Smooth transition for hover */
+            position: relative; /* For potential pseudo-elements */
+            overflow: hidden; /* Ensures border-radius and shadows are contained */
+        }
+
+        .section:hover {
+            transform: translateY(-5px); /* More noticeable lift on hover */
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.18);
+        }
+
+        h3 {
+            font-family: 'Montserrat', sans-serif; /* Use Montserrat for subheadings */
+            color: #34495e;
+            margin-top: 0;
+            margin-bottom: 30px; /* Increased margin */
+            font-weight: 600;
+            font-size: 1.8rem; /* Larger subheadings */
+            border-bottom: 4px solid #ff7f50; /* Vibrant accent color underline */
+            padding-bottom: 15px; /* More padding below underline */
+            display: inline-block;
+            line-height: 1.2;
+            text-transform: uppercase; /* Uppercase for emphasis */
+            letter-spacing: 0.8px;
+        }
+
+        /* Form Elements */
+        label {
+            display: block;
+            margin-top: 25px; /* Increased margin */
+            margin-bottom: 10px; /* Increased margin */
+            font-weight: 500;
+            color: #444; /* Slightly darker label text */
+            font-size: 1.1rem;
+            letter-spacing: 0.2px;
+        }
+
+        select,
+        input[type="number"],
+        input[type="text"] {
+            width: 100%;
+            padding: 16px; /* More padding */
+            margin-top: 5px;
+            border: 1px solid #cdd4df; /* Slightly darker light grey border */
+            border-radius: 12px; /* More rounded for inputs */
+            box-sizing: border-box;
+            font-size: 1.1rem;
+            color: #333;
+            background-color: #f8faff; /* Very light blue tint */
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05); /* Subtle inner shadow */
+        }
+
+        select:focus,
+        input[type="number"]:focus,
+        input[type="text"]:focus {
+            border-color: #4a90e2; /* Blue focus border */
+            box-shadow: 0 0 0 5px rgba(74, 144, 226, 0.3); /* Stronger, softer blue glow on focus */
+            outline: none;
+        }
+
+        input[type="checkbox"] {
+            margin-right: 15px;
+            transform: scale(1.4); /* Larger checkbox */
+            vertical-align: middle;
+            accent-color: #4a90e2; /* Blue accent for checkbox */
+        }
+
+        /* Button Group */
+        .button-group {
+            display: flex;
+            gap: 20px; /* More space between buttons */
+            margin-top: 35px; /* More margin */
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        button {
+            background: linear-gradient(135deg, #4a90e2 0%, #357bd8 100%); /* Blue gradient button */
+            color: white;
+            padding: 15px 35px; /* More padding */
+            border: none;
+            border-radius: 12px; /* More rounded */
+            cursor: pointer;
+            font-size: 1.1rem;
+            font-weight: 600; /* Bolder text */
+            transition: all 0.3s ease;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2); /* Stronger shadow */
+            min-width: 180px; /* Minimum width for buttons */
+            text-transform: uppercase; /* Uppercase button text */
+            letter-spacing: 0.5px;
+        }
+
+        button:hover:not(:disabled) {
+            background: linear-gradient(135deg, #357bd8 0%, #2a6bbd 100%); /* Darker blue gradient on hover */
+            transform: translateY(-3px) scale(1.02); /* More noticeable lift and slight scale */
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+        }
+
+        button:active:not(:disabled) {
+            transform: translateY(0) scale(1);
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
+        }
+
+        button:disabled {
+            background: #cccccc;
+            cursor: not-allowed;
+            box-shadow: none;
+            transform: none;
+        }
+
+        /* Secondary Button Style (for View Datasheet) */
+        button#viewSensorDatasheetBtn,
+        button#viewExtDatasheetBtn {
+            background: linear-gradient(135deg, #ff7f50 0%, #e06a40 100%); /* Orange gradient */
+            box-shadow: 0 6px 15px rgba(255, 127, 80, 0.3); /* Orange shadow */
+        }
+
+        button#viewSensorDatasheetBtn:hover:not(:disabled),
+        button#viewExtDatasheetBtn:hover:not(:disabled) {
+            background: linear-gradient(135deg, #e06a40 0%, #c25b37 100%);
+            box-shadow: 0 8px 20px rgba(255, 127, 80, 0.4);
+        }
+
+        /* Preformatted Output */
+        pre {
+            background: #fdfefe; /* Lighter background for pre */
+            padding: 25px;
+            border-radius: 15px;
+            border: 2px dashed #aed6f1; /* More prominent dashed border */
+            white-space: pre-wrap;
+            word-break: break-word;
+            margin-top: 30px;
+            font-size: 1rem; /* Slightly larger font */
+            color: #3a506b;
+            max-height: 250px; /* Slightly more height */
+            overflow-y: auto;
+            line-height: 1.6;
+            box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.08); /* More noticeable inner shadow */
+            font-family: 'Roboto Mono', monospace; /* Monospace font for code/summary */
+        }
+
+        /* Specific styling for inline inputs within JB configuration */
+        .jb-input-group {
+            display: flex;
+            align-items: center;
+            gap: 15px; /* More space */
+            flex-wrap: wrap;
+            margin-top: 10px; /* Align with label */
+        }
+
+        .jb-input-group input {
+            width: 90px; /* Slightly wider */
+            padding: 12px; /* Adjusted padding */
+            text-align: center;
+        }
+
+        .jb-input-group span {
+            font-weight: 500;
+            color: #555;
+        }
+
+        /* Status Text */
+        #submitStatus {
+            font-weight: 700; /* Bolder status */
+            margin-left: 20px; /* More margin */
+            font-size: 1.2rem; /* Larger status text */
+            display: flex;
+            align-items: center;
+            letter-spacing: 0.3px;
+        }
+
+        #submitStatus.submitted {
+            color: #28a745; /* Green for submitted */
+        }
+
+        #submitStatus.not-submitted {
+            color: #dc3545; /* Red for not submitted */
+        }
+
+
+        /* Responsive Adjustments */
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+
+            .section {
+                padding: 25px;
+                margin-bottom: 20px;
+                border-radius: 15px;
+            }
+
+            h2 {
+                font-size: 2rem;
+                margin-bottom: 25px;
+            }
+
+            h3 {
+                font-size: 1.5rem;
+                margin-bottom: 20px;
+                padding-bottom: 10px;
+            }
+
+            label {
+                margin-top: 20px;
+                margin-bottom: 8px;
+                font-size: 1rem;
+            }
+
+            select,
+            input[type="number"],
+            input[type="text"] {
+                padding: 14px;
+                font-size: 1rem;
+                border-radius: 10px;
+            }
+
+            .button-group {
+                flex-direction: column;
+                gap: 12px;
+                margin-top: 25px;
+            }
+
+            button {
+                width: 100%;
+                min-width: unset;
+                padding: 14px 25px;
+                font-size: 1rem;
+                border-radius: 10px;
+            }
+
+            .jb-input-group {
+                flex-direction: row; /* Keep inline on small screens for better use of space */
+                gap: 10px;
+            }
+
+            .jb-input-group input {
+                width: calc(50% - 30px); /* Adjust width for better fit on small screens */
+            }
+
+            #submitStatus {
+                margin-top: 15px;
+                margin-left: 0;
+                justify-content: center;
+                width: 100%;
+                font-size: 1rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            h2 {
+                font-size: 1.6rem;
+            }
+
+            h3 {
+                font-size: 1.3rem;
+            }
+
+            .section {
+                padding: 20px;
+            }
+
+            select,
+            input[type="number"],
+            input[type="text"] {
+                padding: 10px;
+            }
+
+            button {
+                padding: 12px 20px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h2>Complete Vibration Sensor Configuration</h2>
+
+        <!-- Sensor -->
+        <div class="section">
+            <h3>SENSOR</h3>
+            <label for="area">AREA</label>
+            <select id="area">
+                <option value="Safe">Safe</option>
+                <option value="Hazardous">Hazardous</option>
+            </select>
+
+            <label for="make">MAKE</label>
+            <select id="make" onchange="updateOptions()">
+                <option value="Shinkawa">Shinkawa (CBT-420)</option>
+                <option value="Forbes Marshall">Forbes Marshall (FM-LPS)</option>
+            </select>
+
+            <label for="sensorQty">QUANTITY (No. of Sensors)</label>
+            <input type="number" id="sensorQty" value="1" min="1">
+
+            <label for="range">RANGE</label>
+            <select id="range"></select>
+
+            <label for="measurement">MEASUREMENT UNIT</label>
+            <select id="measurement">
+                <option value="P">PEAK</option>
+                <option value="R">RMS</option>
+            </select>
+
+            <div id="shinkawaOpts" style="display:none;">
+                <label for="yy">Cable/ Connector</label>
+                <select id="yy">
+                    <option value="50">2 Pin MS</option>
+                </select>
+            </div>
+            <div class="button-group">
+                <button onclick="showSensorCode()">Show Sensor Full Code</button>
+                <button id="viewSensorDatasheetBtn" onclick="viewSensorDatasheet()" disabled>View Datasheet</button>
+            </div>
+            <pre id="sensorCode">Click "Show Sensor Full Code" to generate.</pre>
+        </div>
+
+        <!-- Extension cable -->
+        <div class="section">
+            <h3>EXTENSION CABLE</h3>
+            <select id="extCable" onchange="toggleExt()">
+                <option value="NO">NOT REQUIRED</option>
+                <option value="YES">REQUIRED</option>
+            </select>
+            <div id="extOptions" style="display:none;">
+                <label for="extLength">LENGTH</label>
+                <select id="extLength">
+                    <option value="005">5 m</option>
+                    <option value="010">10 m</option>
+                    <option value="015">15 m</option>
+                    <option value="020">20 m</option>
+                    <option value="025">25 m</option>
+                    <option value="030">30 m</option>
+                </select>
+                <div class="button-group">
+                    <button onclick="showExtCode()">Show Extension Cable Code</button>
+                    <button id="viewExtDatasheetBtn" onclick="viewExtDatasheet()" disabled>View Datasheet</button>
+                </div>
+                <pre id="extCode">Click "Show Extension Cable Code" to generate.</pre>
+            </div>
+        </div>
+
+        <!-- Mounting accessories -->
+        <div class="section">
+            <h3>MOUNTING ACCESSORIES</h3>
+            <label><input type="checkbox" id="mountPad"> Mounting Pad</label>
+            <div id="padOpts" style="display:none;">
+                <label for="padMoc">MOC</label>
+                <select id="padMoc">
+                    <option value="MS sith SS insert (Standard)">MS with SS insert (Standard)</option>
+                    <option value="SS304 (Non Standard)">SS304 (Non Standard)</option>
+                    <option value="SS316L (Non Standard)">SS316L (Non Standard)</option>
+                </select>
+                <div class="button-group">
+                    <button onclick="showMountPadCode()">Show Mounting Pad Code</button>
+                </div>
+                <pre id="padCode">Click "Show Mounting Pad Code" to generate.</pre>
+            </div>
+
+            <label><input type="checkbox" id="mountStud"> Mounting Stud</label>
+            <div id="studOpts" style="display:none;">
+                <label for="threadStd">Thread Details</label>
+                <input type="text" id="threadStd" placeholder="ex. M6 x 1.25">
+                <label for="threadDepth">Depth (mm)</label>
+                <input type="number" id="threadDepth" placeholder="ex. 10" min="1">
+                <label for="studMoc">MOC</label>
+                <select id="studMoc">
+                    <option value="SS304 (Standard)">SS304 (Standard)</option>
+                    <option value="SS316L (Non Standard)">SS316L (Non Standard)</option>
+                </select>
+                <div class="button-group">
+                    <button onclick="showMountStudCode()">Show Mounting Stud Code</button>
+                </div>
+                <pre id="studCode">Click "Show Mounting Stud Code" to generate.</pre>
+            </div>
+        </div>
+
+        <!-- JUNCTION BOX CONFIGURATION -->
+        <div class="section">
+            <h3>JUNCTION BOX CONFIGURATION</h3>
+            <label for="jbMoc">JB MOC</label>
+            <input type="text" id="jbMoc" placeholder="e.g. FRP">
+            <label>JB CONFIGURATION</label>
+            <div class="jb-input-group">
+                <input type="number" id="jbIn" placeholder="In" min="1" oninput="this.value = Math.abs(this.value)"> <span>in</span>
+                <input type="number" id="jbOut" placeholder="Out" min="1" oninput="this.value = Math.max(0, this.value)"> <span>out</span>
+            </div>
+
+            <label for="glandMoc">GLAND MOC</label>
+            <input type="text" id="glandMoc" placeholder="e.g. SS304">
+            <div class="button-group">
+                <button onclick="showJBConfig()">Show JB Summary</button>
+            </div>
+
+            <pre id="jbOutput">Click "Show JB Summary" to generate.</pre>
+        </div>
+
+        <!-- Complete Summary and Actions -->
+        <div class="section">
+            <h3>COMPLETE CONFIGURATION SUMMARY</h3>
+            <div class="button-group">
+                <button onclick="generateFullSummary()">Generate Full Summary</button>
+            </div>
+            <pre id="fullSummaryOutput">Click "Generate Full Summary" to see your complete configuration.</pre>
+        </div>
+
+        <div class="button-group" style="margin-top: 20px;">
+            <button onclick="generatePDF()">Generate PDF</button>
+            <button id="submitBtn" onclick="toggleSubmit()" data-submitted="false">Submit</button>
+            <span id="submitStatus" class="not-submitted">❌ Not Submitted</span>
+        </div>
+    </div>
+
+    <script>
+        const DATASHEETS = {
+            'FM-EXTC': 'https://res.cloudinary.com/dzo1am1z1/image/upload/v1752062409/FM-EXTC-SS-010-1_beg2p0.png',
+            'FM-LPS': 'https://res.cloudinary.com/dzo1am1z1/image/upload/v1752062400/FM-LPS-420_series_spec_RevA-1_lf1zye.png',
+            'CBT-420': 'https://res.cloudinary.com/dzo1am1z1/image/upload/v1752062361/CBT-420-1_tofuxr.png'
+        };
+
+        // Helper function to validate input fields
+        function validateInput(elementId, outputElementId, message = "No data selected / Invalid Format") {
+            const element = document.getElementById(elementId);
+            const outputElement = document.getElementById(outputElementId);
+            if (!element || !outputElement) return false;
+
+            let isValid = true;
+            let value = element.value.trim();
+
+            if (element.type === 'number') {
+                if (value === '' || isNaN(value) || parseFloat(value) < 0 || (element.id === 'sensorQty' && parseFloat(value) < 1)) {
+                    isValid = false;
+                }
+            } else if (element.tagName === 'SELECT') {
+                if (value === '') {
+                    isValid = false;
+                }
+            } else { // Text input
+                if (value === '') {
+                    isValid = false;
+                }
+            }
+
+            if (!isValid) {
+                outputElement.innerText = message;
+                return false;
+            }
+            return true;
+        }
+
+        function updateOptions() {
+            let make = document.getElementById("make").value;
+            let range = document.getElementById("range");
+            range.innerHTML = "";
+            document.getElementById("shinkawaOpts").style.display = make === "Shinkawa" ? "block" : "none";
+            let ranges = make === "Shinkawa" ? [10, 20, 30, 40, 50, 60, 70, 80, 90, 100] : [10, 20, 30, 40, 50];
+            ranges.forEach(v => {
+                let opt = document.createElement("option");
+                opt.value = v;
+                opt.text = `0-${v} mm/sec`;
+                range.appendChild(opt);
+            });
+        }
+
+        async function generatePDF() {
+            const {
+                jsPDF
+            } = window.jspdf;
+            const doc = new jsPDF();
+
+            const content = document.getElementById("fullSummaryOutput").innerText;
+            if (!content || content.trim() === '' || content.includes("Click \"Generate Full Summary\"")) {
+                alert("Please generate the full summary first.");
+                return;
+            }
+
+            const lines = doc.splitTextToSize(content, 180); // Wrap text
+            doc.setFont("courier", "normal");
+            doc.setFontSize(12);
+            doc.text(lines, 10, 20);
+            doc.save("Sensor_Configuration_Summary.pdf");
+        }
+
+        function toggleSubmit() {
+            const submitBtn = document.getElementById("submitBtn");
+            const status = document.getElementById("submitStatus");
+            const isSubmitted = submitBtn.getAttribute("data-submitted") === "true";
+
+            if (isSubmitted) {
+                // Switch to EDIT mode
+                submitBtn.innerText = "Submit";
+                status.innerHTML = "❌ Not Submitted";
+                status.classList.remove("submitted");
+                status.classList.add("not-submitted");
+                submitBtn.setAttribute("data-submitted", "false");
+
+                // Enable all form controls
+                document.querySelectorAll("input, select, button").forEach(el => {
+                    if (el.id !== "submitBtn" && el.id !== "viewSensorDatasheetBtn" && el.id !== "viewExtDatasheetBtn") {
+                        el.disabled = false;
+                    }
+                });
+
+            } else {
+                // Switch to SUBMITTED mode
+                submitBtn.innerText = "Edit";
+                status.innerHTML = "✅ Submitted";
+                status.classList.remove("not-submitted");
+                status.classList.add("submitted");
+                submitBtn.setAttribute("data-submitted", "true");
+
+                // Disable all form controls (except submit & datasheet buttons)
+                document.querySelectorAll("input, select, button").forEach(el => {
+                    if (el.id !== "submitBtn" && el.id !== "viewSensorDatasheetBtn" && el.id !== "viewExtDatasheetBtn") {
+                        el.disabled = true;
+                    }
+                });
+            }
+        }
+
+        function toggleExt() {
+            const extOptionsDiv = document.getElementById("extOptions");
+            const isRequired = document.getElementById("extCable").value === "YES";
+            extOptionsDiv.style.display = isRequired ? "block" : "none";
+            // Clear previous output and disable button if "NOT REQUIRED" is selected
+            if (!isRequired) {
+                document.getElementById("extCode").innerText = 'Select "REQUIRED" and click "Show Extension Cable Code" to generate.';
+                document.getElementById("viewExtDatasheetBtn").disabled = true;
+            }
+        }
+
+        function showSensorCode() {
+            const sensorCodePre = document.getElementById("sensorCode");
+            const viewSensorDatasheetBtn = document.getElementById("viewSensorDatasheetBtn");
+            viewSensorDatasheetBtn.disabled = true; // Disable until valid code is generated
+
+            // Validate Quantity
+            if (!validateInput('sensorQty', 'sensorCode')) return;
+            const qty = parseInt(document.getElementById("sensorQty").value);
+            if (qty < 1) {
+                sensorCodePre.innerText = "Quantity must be at least 1.";
+                return;
+            }
+
+            const make = document.getElementById("make").value;
+            const range = document.getElementById("range").value;
+            const measure = document.getElementById("measurement").value;
+
+            // Basic validation for select elements
+            if (!validateInput('make', 'sensorCode', 'Please select a sensor make.')) return;
+            if (!validateInput('range', 'sensorCode', 'Please select a sensor range.')) return;
+            if (!validateInput('measurement', 'sensorCode', 'Please select a measurement unit.')) return;
+
+            let out = "";
+            if (make === "Shinkawa") {
+                const yy = document.getElementById("yy").value;
+
+                // Validate Shinkawa specific fields
+                if (!validateInput('yy', 'sensorCode', 'Please select Cable/Connector for Shinkawa.')) return;
+
+                // Pad range: 10 → 010, 20 → 020 ... 100 stays 100
+                const paddedRange = range === "100" ? "100" : range.padStart(3, '0');
+
+                const measureText = measure === "P" ? "PEAK" : "RMS";
+                out += `Full Code: CBT-420-${paddedRange}-${yy}-01\nQuantity: ${qty}\nRange: ${range} mm/sec (${measureText})\nCBT-420 Series Loop powered sensor with ${range} mm/sec ${measureText} output, 4-20 mA for PLC/DCS connectivity, with 2 pin MS connector, MOC: SS316L, with grub screw 1/4' 28 UNF female`;
+            } else { // Forbes Marshall
+                const measureText = measure === "P" ? "PEAK" : "RMS";
+                out += `Full Code: FM-LPS-420-${range}B-${measure}-W\nQuantity: ${qty}\nRange: ${range} mm/sec (${measureText})\nFM-LPS Loop powered sensor with ${range} mm/sec ${measureText} output, 4-20 mA, for PLC/DCS integration`;
+
+            }
+
+            sensorCodePre.innerText = out;
+            viewSensorDatasheetBtn.disabled = false; // Enable datasheet button
+        }
+
+
+        function viewSensorDatasheet() {
+            let make = document.getElementById("make").value;
+            let datasheetUrl = '';
+            if (make === "Shinkawa") {
+                datasheetUrl = DATASHEETS['CBT-420'];
+            } else if (make === "Forbes Marshall") {
+                datasheetUrl = DATASHEETS['FM-LPS'];
+            }
+
+            if (datasheetUrl) {
+                window.open(datasheetUrl, '_blank');
+            } else {
+                alert('Datasheet not available for the selected sensor make.');
+            }
+        }
+
+        function showExtCode() {
+            const extCodePre = document.getElementById("extCode");
+            const viewExtDatasheetBtn = document.getElementById("viewExtDatasheetBtn");
+            viewExtDatasheetBtn.disabled = true; // Disable until valid code is generated
+
+            if (document.getElementById("extCable").value === "NO") {
+                extCodePre.innerText = 'Extension cable not required.';
+                return;
+            }
+
+            // Validate Extension Length
+            if (!validateInput('extLength', 'extCode', 'Please select an extension cable length.')) return;
+
+            const qty = parseInt(document.getElementById("sensorQty").value) || 1; // Use sensor qty for cabling calculation
+            const extLen = document.getElementById("extLength").value;
+            let out = `FM-EXTC-SS-${extLen}\nFM Standard ${parseInt(extLen)} meter Extension cables with Flexible SS conduit`;
+            document.getElementById("extCode").innerText = out;
+            viewExtDatasheetBtn.disabled = false; // Enable datasheet button
+        }
+
+        function viewExtDatasheet() {
+            const datasheetUrl = DATASHEETS['FM-EXTC'];
+            if (datasheetUrl) {
+                window.open(datasheetUrl, '_blank');
+            } else {
+                alert('Datasheet not available for extension cable.');
+            }
+        }
+
+        function showMountPadCode() {
+            const padCodePre = document.getElementById("padCode");
+            const padMoc = document.getElementById("padMoc").value;
+
+            if (!padMoc) {
+                padCodePre.innerText = "Please select MOC for Mounting Pad.";
+                return;
+            }
+
+            padCodePre.innerText = `FM std mounting pad 30x30x15, MOC: ${padMoc}`;
+        }
+
+        function showMountStudCode() {
+            const studCodePre = document.getElementById("studCode");
+            const threadStd = document.getElementById("threadStd").value.trim();
+            const threadDepth = document.getElementById("threadDepth").value.trim();
+            const studMoc = document.getElementById("studMoc").value;
+
+            if (!studMoc) {
+                studCodePre.innerText = "Please select MOC for Mounting Stud.";
+                return;
+            }
+
+            const threadInfo = threadStd || "(not specified)";
+            const depthInfo = threadDepth ? `${threadDepth} mm` : "(not specified)";
+
+            const output = `Mounting Stud with MOC: ${studMoc}, Thread details: ${threadInfo}, Depth: ${depthInfo}`;
+            studCodePre.innerText = output;
+            console.log("Button clicked", threadStd, threadDepth, studMoc);
+
+        }
+
+        function showJBConfig() {
+            const jbOutputPre = document.getElementById("jbOutput");
+
+            // Validate text inputs
+            if (!validateInput('jbMoc', 'jbOutput', 'JB MOC cannot be empty.')) return;
+            if (!validateInput('glandMoc', 'jbOutput', 'Gland MOC cannot be empty.')) return;
+
+            // Validate number inputs
+            if (!validateInput('jbIn', 'jbOutput', 'Number of Inlets must be a valid positive number.')) return;
+            if (!validateInput('jbOut', 'jbOutput', 'Number of Outlets must be a valid non-negative number.')) return;
+
+            const qty = parseInt(document.getElementById("sensorQty").value) || 1;
+            const jbMoc = document.getElementById("jbMoc").value;
+            const jbIn = parseInt(document.getElementById("jbIn").value);
+            const jbOut = parseInt(document.getElementById("jbOut").value);
+            const glandMoc = document.getElementById("glandMoc").value;
+
+            // Additional logical validation for inlets/outlets
+            if (jbIn <= 0) {
+                jbOutputPre.innerText = "Number of Inlets must be at least 1.";
+                return;
+            }
+            if (jbOut < 0) {
+                jbOutputPre.innerText = "Number of Outlets cannot be negative.";
+                return;
+            }
+
+            let terminals = Math.ceil((jbIn * 3) + (jbIn * 3 * 0.2)); // Assuming 3 wires per sensor, 20% buffer
+            let glands = jbIn + jbOut;
+            let jbQty = Math.ceil(qty / jbIn); // Calculate required number of JBs
+
+            let out = `Junction Box: ${jbMoc}, ${jbIn} in ${jbOut} out\nTerminals: (JBin)${jbIn} * (Axis)3 + (20% Spares)${jbIn * 3 * 0.2}= ${terminals}\nGlands: ${glands}\nGland MOC: ${glandMoc}\nJB Quantity: ${jbQty}`;
+            jbOutputPre.innerText = out;
+        }
+
+        function generateFullSummary() {
+            const summaryOutput = document.getElementById("fullSummaryOutput");
+            let summaryText = "Complete Configuration Summary\n\n";
+
+            // --- Sensor Summary ---
+            summaryText += "1. Sensor Configuration:\n";
+
+            const sensorCodeText = document.getElementById("sensorCode").innerText.trim();
+            if (sensorCodeText.startsWith("Full Code:")) {
+                const firstLineEnd = sensorCodeText.indexOf("\n");
+                const fullCodeLine = sensorCodeText.substring(0, firstLineEnd);
+                const descriptionLines = sensorCodeText
+                    .substring(firstLineEnd + 1)
+                    .split("\n")
+                    .filter(line => !line.startsWith("Quantity") && !line.startsWith("Range"))
+                    .join("\n    ");
+
+                summaryText += `    ${descriptionLines}\n`;
+                summaryText += `    - ${fullCodeLine}\n`;
+            } else {
+                summaryText += `    - Sensor details incomplete or invalid: ${sensorCodeText}\n`;
+            }
+
+            summaryText += `    - Area: ${document.getElementById("area").value}\n`;
+            summaryText += `    - Make: ${document.getElementById("make").value}\n`;
+            summaryText += `    - Quantity: ${document.getElementById("sensorQty").value}\n`;
+            summaryText += `    - Range: ${document.getElementById("range").value} mm/sec\n`;
+
+            const measureValue = document.getElementById("measurement").value;
+            const measureText = measureValue === "P" ? "PEAK" : "RMS";
+            summaryText += `    - Measurement Unit: ${measureText}\n`;
+
+            if (document.getElementById("make").value === "Shinkawa") {
+                summaryText += `    - Cable/Connector: ${document.getElementById("yy").options[document.getElementById("yy").selectedIndex].text}\n`;
+            }
+
+            summaryText += "\n";
+
+
+            // --- Extension Cable Summary ---
+            summaryText += "2. Extension Cable:\n";
+            if (document.getElementById("extCable").value === "YES") {
+                const extCodeText = document.getElementById("extCode").innerText.trim();
+                if (extCodeText.startsWith("FM-EXTC")) {
+                    summaryText += `    - ${extCodeText}\n`;
+                } else {
+                    summaryText += `    - Extension Cable details incomplete or invalid: ${extCodeText}\n`;
+                }
+            } else {
+                summaryText += "    - Not Required\n";
+            }
+            summaryText += "\n";
+
+            // --- Mounting Accessories Summary ---
+            summaryText += "3. Mounting Accessories:\n";
+            let accessoriesFound = false;
+            if (document.getElementById("mountPad").checked) {
+                summaryText += `    - Mounting Pad (MOC: ${document.getElementById("padMoc").value})\n`;
+                accessoriesFound = true;
+            }
+            if (document.getElementById("mountStud").checked) {
+                const threadStd = document.getElementById("threadStd").value.trim();
+                const threadDepth = document.getElementById("threadDepth").value.trim();
+                const studMoc = document.getElementById("studMoc").value;
+                summaryText += `    - Mounting Stud (Thread: ${threadStd || 'N/A'}, Depth: ${threadDepth || 'N/A'}mm, MOC: ${studMoc})\n`;
+                if (threadStd === '' || threadDepth === '') {
+                    summaryText += `     (Note: Thread details for Mounting Stud are incomplete)\n`;
+                }
+                accessoriesFound = true;
+            }
+            if (!accessoriesFound) {
+                summaryText += "    - None selected\n";
+            }
+            summaryText += "\n";
+
+            // --- Junction Box Summary ---
+            summaryText += "4. Junction Box Configuration:\n";
+            const jbOutputText = document.getElementById("jbOutput").innerText.trim();
+            if (jbOutputText.startsWith("Junction Box:")) {
+                summaryText += `    - ${jbOutputText}\n`;
+            } else {
+                summaryText += `    - Junction Box details incomplete or invalid: ${jbOutputText}\n`;
+            }
+            summaryText += "\n";
+
+            summaryOutput.innerText = summaryText;
+        }
+
+
+        document.getElementById("mountPad").addEventListener('change', () => {
+            const isChecked = document.getElementById("mountPad").checked;
+            document.getElementById("padOpts").style.display = isChecked ? "block" : "none";
+            if (!isChecked) document.getElementById("padCode").innerText = 'Click "Show Mounting Pad Code" to generate.';
+        });
+
+        document.getElementById("mountStud").addEventListener('change', () => {
+            const isChecked = document.getElementById("mountStud").checked;
+            document.getElementById("studOpts").style.display = isChecked ? "block" : "none";
+            if (!isChecked) document.getElementById("studCode").innerText = 'Click "Show Mounting Stud Code" to generate.';
+        });
+
+
+        // Initial setup
+        updateOptions();
+        toggleExt(); // Ensure extension options are correctly hidden/shown on load
+    </script>
+</body>
+
+</html>
