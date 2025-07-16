@@ -219,7 +219,8 @@
             letter-spacing: 0.3px;
         }
 
-        #submitStatus.submitted {
+        #submitStatus.submitted 
+        {
             color: #28a745; /* Green for submitted */
         }
 
@@ -326,6 +327,16 @@
 <body>
     <div class="container">
         <h2>Complete Vibration Sensor Configuration</h2>
+        <!-- Customer details -->
+        <div class="section">
+            <h3>Details</h3>
+        <label for="customer">CUSTOMER</label>
+            <input type="text" id="customer">
+        <label for="project">PROJECT</label>
+            <input type="text" id="project">
+        <label for="ref">REFERENCE</label>
+            <input type="text" id="ref">
+        </div>
 
         <!-- Sensor -->
         <div class="section">
@@ -458,7 +469,7 @@
         </div>
 
         <div class="button-group" style="margin-top: 20px;">
-            <button onclick="generateExcel()">Generate Excel</button>
+            <button onclick="if (validateDetails()) generateExcel();">Generate Excel</button>
             <button id="submitBtn" onclick="toggleSubmit()" data-submitted="false">Submit</button>
             <span id="submitStatus" class="not-submitted">❌ Not Submitted</span>
         </div>
@@ -514,122 +525,154 @@
                 range.appendChild(opt);
             });
         }
+        
+        // Details required like cust name, ref, project
+        function validateDetails() {
+            const customer = document.getElementById("customer").value.trim();
+            const project = document.getElementById("project").value.trim();
+            const ref = document.getElementById("ref").value.trim();
 
+            if (!customer) {
+                alert("Please enter CUSTOMER name.");
+                return false;
+            }
+            if (!project) {
+                alert("Please enter PROJECT name.");
+                return false;
+            }
+            if (!ref) {
+                alert("Please enter REFERENCE.");
+                return false;
+            }
+
+            return true; // all good
+        }
  
-    async function generateExcel() {
-    // Get values
-    const make = document.getElementById("make")?.value || "";
-    const rangeValue = document.getElementById("range")?.value || "";
-    const paddedRange = rangeValue ? rangeValue.toString().padStart(3, '0') : "";
-    const yy = document.getElementById("yy")?.value || "";
-    const measure = document.getElementById("measurement")?.value || "";
-    const measureText = measure === "P" ? "Peak" : (measure === "R" ? "RMS" : "");
-    const qty = parseInt(document.getElementById("sensorQty")?.value) || 0;
+        async function generateExcel() {
+            // Get values
+            const customer = document.getElementById("customer")?.value.trim() || "";
+            const project = document.getElementById("project")?.value.trim() || "";
+            const ref = document.getElementById("ref")?.value.trim() || "";
 
-    // Extension Cable
-    const extRequired = document.getElementById("extCable")?.value === "YES";
-    const extLen = document.getElementById("extLength")?.value || "";
+            const make = document.getElementById("make")?.value || "";
+            const rangeValue = document.getElementById("range")?.value || "";
+            const paddedRange = rangeValue ? rangeValue.toString().padStart(3, '0') : "";
+            const yy = document.getElementById("yy")?.value || "";
+            const measure = document.getElementById("measurement")?.value || "";
+            const measureText = measure === "P" ? "Peak" : (measure === "R" ? "RMS" : "");
+            const qty = parseInt(document.getElementById("sensorQty")?.value) || 0;
 
-    // Mounting Pad
-    const padRequired = document.getElementById("mountPad")?.checked;
-    const padMoc = document.getElementById("padMoc")?.value || "";
+            // Extension Cable
+            const extRequired = document.getElementById("extCable")?.value === "YES";
+            const extLen = document.getElementById("extLength")?.value || "";
 
-    // Mounting Stud
-    const studRequired = document.getElementById("mountStud")?.checked;
-    const studMoc = document.getElementById("studMoc")?.value || "";
-    const threadInfo = document.getElementById("threadStd")?.value || "";
-    const depthRaw = document.getElementById("threadDepth")?.value || "";
-    const depthInfo = depthRaw ? `${depthRaw}mm` : "";
+            // Mounting Pad
+            const padRequired = document.getElementById("mountPad")?.checked;
+            const padMoc = document.getElementById("padMoc")?.value || "";
 
-    // Junction Box
-    const jbMoc = document.getElementById("jbMoc")?.value || "";
-    const jbIn = parseInt(document.getElementById("jbIn")?.value) || 0;
-    const jbOut = parseInt(document.getElementById("jbOut")?.value) || 0;
-    const glandMoc = document.getElementById("glandMoc")?.value || "";
-    const totalTerminals = jbIn ? Math.ceil(jbIn * 3 * 1.2) : "";
-    const totalGlands = (jbIn + jbOut) > 0 ? (jbIn + jbOut) : "";
-    const jbQty = (jbIn && qty) ? Math.ceil(qty / jbIn) : "";
+            // Mounting Stud
+            const studRequired = document.getElementById("mountStud")?.checked;
+            const studMoc = document.getElementById("studMoc")?.value || "";
+            const threadInfo = document.getElementById("threadStd")?.value || "";
+            const depthRaw = document.getElementById("threadDepth")?.value || "";
+            const depthInfo = depthRaw ? `${depthRaw}mm` : "";
 
-    let srNo = 1;
-    const data = [];
+            // Junction Box
+            const jbMoc = document.getElementById("jbMoc")?.value || "";
+            const jbIn = parseInt(document.getElementById("jbIn")?.value) || 0;
+            const jbOut = parseInt(document.getElementById("jbOut")?.value) || 0;
+            const glandMoc = document.getElementById("glandMoc")?.value || "";
+            const totalTerminals = jbIn ? Math.ceil(jbIn * 3 * 1.2) : "";
+            const totalGlands = (jbIn + jbOut) > 0 ? (jbIn + jbOut) : "";
+            const jbQty = (jbIn && qty) ? Math.ceil(qty / jbIn) : "";
 
-    // Sensor
-    if (make === "Shinkawa") {
-        data.push([
-            srNo++,
-            `Sensor (Shinkawa)`,
-            rangeValue ? `CBT-420 Series Loop powered sensor with range 0-${rangeValue} mm/sec ${measureText}, output 4-20 mA for PLC/DCS connectivity, with 2 pin MS connector, MOC: SS316L, with grub screw 1/4' 28 UNF female` : "",
-            (paddedRange && yy) ? `CBT-420-${paddedRange}-${yy}-01` : "",
-            qty
-        ]);
-    } else if (make === "Forbes Marshall") {
-        data.push([
-            srNo++,
-            `Sensor (FM)`,
-            rangeValue ? `FM-LPS Loop powered sensor with range 0-${rangeValue} mm/sec ${measureText}, output 4-20 mA for PLC/DCS integration` : "",
-            (rangeValue && measureText) ? `FM-LPS-420-${rangeValue}B-${measureText}-W` : "",
-            qty
-        ]);
-    } else {
-        data.push([
-            srNo++,
-            `Sensor`,
-            "",
-            "",
-            qty
-        ]);
-    }
+            let srNo = 1;
+            const data = [];
 
-    // Extension Cable
-    data.push([
-        srNo++,
-        `Extension Cable`,
-        extRequired && extLen ? `FM Standard ${parseInt(extLen)} meter Extension cables with Flexible SS conduit` : "Not Required",
-        extRequired && extLen ? `FM-EXTC-SS-${extLen}` : "",
-        extRequired && extLen ? qty : ""
-    ]);
+            // Sensor
+            if (make === "Shinkawa") {
+                data.push([
+                    srNo++,
+                    `Sensor (Shinkawa)`,
+                    rangeValue ? `CBT-420 Series Loop powered sensor with range 0-${rangeValue} mm/sec ${measureText}, output 4-20 mA for PLC/DCS connectivity, with 2 pin MS connector, MOC: SS316L, with grub screw 1/4' 28 UNF female` : "",
+                    (paddedRange && yy) ? `CBT-420-${paddedRange}-${yy}-01` : "",
+                    qty
+                ]);
+            } else if (make === "Forbes Marshall") {
+                data.push([
+                    srNo++,
+                    `Sensor (FM)`,
+                    rangeValue ? `FM-LPS Loop powered sensor with range 0-${rangeValue} mm/sec ${measureText}, output 4-20 mA for PLC/DCS integration` : "",
+                    (rangeValue && measureText) ? `FM-LPS-420-${rangeValue}B-${measureText}-W` : "",
+                    qty
+                ]);
+            } else {
+                data.push([
+                    srNo++,
+                    `Sensor`,
+                    "",
+                    "",
+                    qty
+                ]);
+            }
 
-    // Mounting Pad
-    data.push([
-        srNo++,
-        `Mounting Pad`,
-        padRequired && padMoc ? `FM std mounting pad 30x30x15, MOC: ${padMoc}` : "Not Required",
-        padRequired && padMoc ? `FM-MP-001` : "",
-        padRequired && padMoc ? qty : ""
-    ]);
+            // Extension Cable
+            data.push([
+                srNo++,
+                `Extension Cable`,
+                extRequired && extLen ? `FM Standard ${parseInt(extLen)} meter Extension cables with Flexible SS conduit` : "Not Required",
+                extRequired && extLen ? `FM-EXTC-SS-${extLen}` : "",
+                extRequired && extLen ? qty : ""
+            ]);
 
-    // Mounting Stud
-    data.push([
-        srNo++,
-        `Mounting Stud`,
-        studRequired && (studMoc || threadInfo || depthInfo) ?
-            `Mounting Stud with MOC: ${studMoc}, Thread details: ${threadInfo}, Depth: ${depthInfo}` 
-            : "Not Required",
-        studRequired && (studMoc || threadInfo || depthInfo) ? `FM-MS-001` : "",
-        studRequired && (studMoc || threadInfo || depthInfo) ? qty : ""
-    ]);
+            // Mounting Pad
+            data.push([
+                srNo++,
+                `Mounting Pad`,
+                padRequired && padMoc ? `FM std mounting pad 30x30x15, MOC: ${padMoc}` : "Not Required",
+                padRequired && padMoc ? `FM-MP-001` : "",
+                padRequired && padMoc ? qty : ""
+            ]);
 
-    // Junction Box
-    data.push([
-        srNo++,
-        `Junction Box`,
-        (jbMoc || glandMoc || jbIn || jbOut) ?
-            `Junction Box: ${jbMoc}, ${jbIn} in ${jbOut} out\nTerminals (incl. 20% spares): (${jbIn * 3} + ${jbIn * 3 * 0.2}) = ${totalTerminals}\nGlands: ${jbIn} In + ${jbOut} Out = ${totalGlands}\nGland MOC: ${glandMoc}\nJB Quantity: ${jbQty}`
-            : "Not Required",
-        "",
-        jbQty
-    ]);
+            // Mounting Stud
+            data.push([
+                srNo++,
+                `Mounting Stud`,
+                studRequired && (studMoc || threadInfo || depthInfo) ?
+                    `Mounting Stud with MOC: ${studMoc}, Thread details: ${threadInfo}, Depth: ${depthInfo}` 
+                    : "Not Required",
+                studRequired && (studMoc || threadInfo || depthInfo) ? `FM-MS-001` : "",
+                studRequired && (studMoc || threadInfo || depthInfo) ? qty : ""
+            ]);
 
-    // Build Excel
-    const ws = XLSX.utils.aoa_to_sheet([
-        ["Sr no.", "Accessories", "Description", "Code", "Quantity"],
-        ...data
-    ]);
+            // Junction Box
+            data.push([
+                srNo++,
+                `Junction Box`,
+                (jbMoc || glandMoc || jbIn || jbOut) ?
+                    `Junction Box: ${jbMoc}, ${jbIn} in ${jbOut} out\nTerminals (incl. 20% spares): (${jbIn * 3} + ${jbIn * 3 * 0.2}) = ${totalTerminals}\nGlands: ${jbIn} In + ${jbOut} Out = ${totalGlands}\nGland MOC: ${glandMoc}\nJB Quantity: ${jbQty}`
+                    : "Not Required",
+                "",
+                jbQty
+            ]);
 
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "Summary");
-    XLSX.writeFile(wb, "Sensor_Configuration_Summary.xlsx");
-}
+            // Build Excel
+            const ws = XLSX.utils.aoa_to_sheet([
+                ["Customer:", customer],
+                ["Project:", project],
+                ["Reference:", ref],
+                [],
+                ["A. MAIN SCOPE OF SUPPLY"],
+                ["SCOPE OF SUPPLY BY FORBES MARSHALL PUNE"],
+                ["Sr no.", "Accessories", "Description", "Code", "Quantity"],
+                ...data
+            ]);
+            
+
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Summary");
+            XLSX.writeFile(wb, "Sensor_Configuration_Summary.xlsx");
+        }
 
         function toggleExt() 
         {
@@ -677,12 +720,12 @@
 
                 const measureText = measure === "P" ? "PEAK" : "RMS";
                 out += `Full Code: CBT-420-${paddedRange}-${yy}-01\nQuantity: ${qty}\nRange: 0-${range} mm/sec (${measureText})\n\nCBT-420 Series Loop powered sensor with range 0-${range} mm/sec ${measureText}, output 4-20 mA for PLC/DCS connectivity, with 2 pin MS connector, MOC: SS316L, with grub screw 1/4' 28 UNF female`;
-            } else { // Forbes Marshall
+            } 
+            else 
+            { // Forbes Marshall
                 const measureText = measure === "P" ? "PEAK" : "RMS";
                 out += `Full Code: FM-LPS-420-${range}B-${measure}-W\nQuantity: ${qty}\nRange: 0-${range} mm/sec (${measureText})\n\nFM-LPS Loop powered sensor with range 0-${range} mm/sec ${measureText}, output 4-20 mA for PLC/DCS integration`;
-
             }
-
             sensorCodePre.innerText = out;
             viewSensorDatasheetBtn.disabled = false; // Enable datasheet button
         }
@@ -801,9 +844,16 @@
         }
 
         function generateFullSummary() {
-            const summaryOutput = document.getElementById("fullSummaryOutput");
-            let summaryText = "Complete Configuration Summary\n\n";
+            
+            const customer = document.getElementById("customer")?.value.trim() || "(not specified)";
+            const project = document.getElementById("project")?.value.trim() || "(not specified)";
+            const ref = document.getElementById("ref")?.value.trim() || "(not specified)";
 
+            // Build the initial summary block
+            let summaryText = `CUSTOMER : ${customer}\n`;
+            summaryText += `PROJECT  : ${project}\n`;
+            summaryText += `REFERENCE: ${ref}\n\n`;
+        
             // --- Sensor Summary ---
             summaryText += "1. Sensor Configuration:\n";
 
@@ -885,7 +935,9 @@
             }
             summaryText += "\n";
 
+            const summaryOutput = document.getElementById("fullSummaryOutput");
             summaryOutput.innerText = summaryText;
+
         }
 
 
