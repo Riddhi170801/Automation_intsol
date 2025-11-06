@@ -1,0 +1,1764 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Vibration Configurator Dashboard</title>
+    
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.3.0/exceljs.min.js"></script>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --sidebar-bg: #2c3e50;
+            --main-bg: #f4f7f9;
+            --card-bg: #ffffff;
+            --primary-accent: #323c8a; /* Slate Blue */
+            --primary-accent-dark: #483d8b;
+            --success-color: #28a745;
+            --text-dark: #34495e;
+            --text-light: #ecf0f1;
+            --border-color: #e2e8f0;
+            --shadow-color: rgba(0, 0, 0, 0.08);
+            --code-color: #00bcd4; /* Cyan for code */
+        }
+
+        /* --- Base & Layout --- */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: var(--main-bg);
+            color: var(--text-dark);
+            display: flex;
+        }
+
+        #sidebar {
+            width: 280px;
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            background-color: var(--sidebar-bg);
+            color: var(--text-light);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            transition: width 0.3s ease;
+        }
+
+        .sidebar-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .sidebar-header h2 {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1.2rem;
+            color: var(--text-light);
+        }
+
+        #main-content {
+            margin-left: 280px;
+            width: calc(100% - 280px);
+            padding: 30px;
+            display: flex;
+            gap: 30px;
+        }
+        
+        .form-container {
+            flex: 3;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        .summary-container {
+            flex: 2;
+        }
+
+        /* --- Sidebar Navigation --- */
+        .nav-list { list-style: none; }
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px 12px;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            transition: background-color 0.2s ease, color 0.2s ease;
+            color: #bdc3c7;
+            font-weight: 500;
+        }
+        .nav-item:hover { background-color: rgba(255, 255, 255, 0.05); color: white; }
+        .nav-item.active {
+            background-color: var(--primary-accent);
+            color: white;
+            font-weight: 700;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+        .nav-item.completed .nav-icon { color: var(--success-color); }
+        .nav-icon { width: 24px; height: 24px; }
+
+        /* --- Main Content & Cards --- */
+        .form-step { display: none; }
+        .form-step.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .card {
+            background-color: var(--card-bg);
+            border-radius: 16px;
+            padding: 25px 30px;
+            margin-bottom: 25px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 4px 6px var(--shadow-color);
+        }
+
+        .card-header {
+            margin-bottom: 25px;
+            text-align: center;
+        }
+        .card-header h3 {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1.5rem;
+            color: var(--text-dark);
+            position: relative;
+            display: inline-block;
+            padding-bottom: 10px;
+        }
+        .card-header h3::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 50px;
+            height: 4px;
+            background-color: var(--primary-accent);
+            border-radius: 2px;
+        }
+
+        /* --- Form Elements --- */
+        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; }
+        .form-group { display: flex; flex-direction: column; }
+        
+        label { 
+            margin-bottom: 8px; 
+            font-weight: 500; 
+            font-size: 0.9rem;
+            color: #718096;
+        }
+        
+        select, input[type="text"], input[type="number"] {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 1rem;
+            background-color: #f8fafc;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+        select:focus, input:focus {
+            outline: none;
+            border-color: var(--primary-accent);
+            box-shadow: 0 0 0 3px rgba(106, 90, 205, 0.2);
+        }
+        
+        input[type="checkbox"] {
+            transform: scale(1.3);
+            margin-right: 10px;
+            accent-color: var(--primary-accent);
+        }
+        
+        .mono {
+            font-family: 'Roboto Mono', monospace;
+            font-weight: 700;
+            letter-spacing: 1px;
+            color: var(--code-color);
+        }
+        
+        .code-display {
+            text-align: center; 
+            background-color: #2d3748; 
+            padding: 15px; 
+            border-radius: 8px; 
+            margin-bottom: 20px;
+        }
+
+        /* --- Buttons --- */
+        .button-group {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 25px;
+        }
+        button {
+            background: var(--primary-accent);
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        button:hover:not(:disabled) {
+            background: var(--primary-accent-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
+        button:disabled { background: #95a5a6; cursor: not-allowed; }
+        .stepper-navigation {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 25px;
+        }
+        
+        #generateExcelBtn { background-color: var(--success-color); }
+        #generateExcelBtn:hover { background-color: #218838; }
+
+        /* --- Live Summary Panel --- */
+        #live-summary {
+            position: sticky;
+            top: 30px;
+            background: var(--card-bg);
+            border-radius: 16px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 4px 6px var(--shadow-color);
+            padding: 25px;
+            height: calc(100vh - 60px);
+            overflow-y: auto;
+        }
+        .summary-section { margin-bottom: 20px; }
+        .summary-section h4 {
+            font-family: 'Montserrat', sans-serif;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 8px;
+            margin-bottom: 12px;
+            color: var(--primary-accent);
+        }
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.95rem;
+            padding: 6px 0;
+            line-height: 1.4;
+        }
+        .summary-key { color: #718096; }
+        .summary-value { font-weight: 500; text-align: right; }
+        
+        /* Responsive */
+        @media (max-width: 1200px) {
+            #main-content { flex-direction: column; }
+            #live-summary { position: relative; top: 0; height: auto; margin-top: 30px; }
+        }
+        @media (max-width: 768px) {
+            #sidebar { width: 70px; }
+            .sidebar-header h2, .nav-text { display: none; }
+            #main-content { margin-left: 70px; width: calc(100% - 70px); padding: 15px; }
+            .form-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="sidebar">
+        <div class="sidebar-header">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 17L12 22L22 17M2 12L12 17L22 12M12 2L2 7L12 12L22 7L12 2Z"/></svg>
+            <h2>Vibration Configurator</h2>
+        </div>
+        <ul class="nav-list">
+            <li class="nav-item active" data-step="1" onclick="navigateToStep(1)">
+                <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path><polyline points="13 2 13 9 20 9"></polyline></svg>
+                <span class="nav-text">Details & Machine</span>
+            </li>
+            <li class="nav-item" data-step="2" onclick="navigateToStep(2)">
+                <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="2"></circle><path d="M16.24 7.76a6 6 0 0 1 0 8.49m-8.48 0a6 6 0 0 1 0-8.49m11.31-2.82a10 10 0 0 1 0 14.14m-14.14 0a10 10 0 0 1 0-14.14"></path></svg>
+                <span class="nav-text">Sensor Selection</span>
+            </li>
+            <li class="nav-item" data-step="3" onclick="navigateToStep(3)">
+                <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path></svg>
+                <span class="nav-text">Accessories & JB</span>
+            </li>
+            <li class="nav-item" data-step="4" onclick="navigateToStep(4)">
+                <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>
+                <span class="nav-text">Monitoring System</span>
+            </li>
+            <li class="nav-item" data-step="5" onclick="navigateToStep(5)">
+                <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                <span class="nav-text">Final Summary</span>
+            </li>
+        </ul>
+    </div>
+
+    <div id="main-content">
+        <div class="form-container">
+
+            <div class="form-step active" data-step="1">
+                <div class="card">
+                    <div class="card-header"><h3>Project & Machine Details</h3></div>
+                    <div class="form-grid">
+                        <div class="form-group"><label for="Engineer">ENGINEER</label><input type="text" id="Engineer" oninput="updateLiveSummary()"></div>
+                        <div class="form-group"><label for="Email">EMAIL</label><input type="text" id="Email" oninput="updateLiveSummary()"></div>
+                        <div class="form-group"><label for="Offer_No">CUSTOMER OFFER NO.</label><input type="text" id="Offer_No" oninput="updateLiveSummary()"></div>
+                        <div class="form-group"><label for="customer">CUSTOMER</label><input type="text" id="customer" oninput="updateLiveSummary()"></div>
+                        <div class="form-group"><label for="project">PROJECT</label><input type="text" id="project" oninput="updateLiveSummary()"></div>
+                        <div class="form-group"><label for="ref">REFERENCE</label><input type="text" id="ref" oninput="updateLiveSummary()"></div>
+                        <div class="form-group"><label for="branch">BRANCH</label><input type="text" id="branch" oninput="updateLiveSummary()"></div>
+                        <div class="form-group"><label for="Machine">MACHINE</label><input type="text" id="Machine" oninput="updateLiveSummary()"></div>
+                        <div class="form-group"><label for="Machine_Type">MACHINE TYPE</label><select id="Machine_Type" onchange="updateLiveSummary()"><option value="">-- Select --</option><option>Horizontal</option><option>Vertical</option></select></div>
+                        <div class="form-group"><label for="Bearing_Type">BEARING TYPE</label><select id="Bearing_Type" onchange="updateLiveSummary()"><option value="">-- Select --</option><option>Antifriction</option><option>Oil Sleeve Type</option></select></div>
+                        <div class="form-group"><label for="Machine_Speed">MACHINE SPEED (RPM)</label><input type="text" id="Machine_Speed" oninput="updateLiveSummary()"></div>
+                    </div>
+                </div>
+                <div class="stepper-navigation"><button disabled style="visibility: hidden;">Previous</button><button onclick="navigateToStep(2)">Next</button></div>
+            </div>
+
+            <div class="form-step" data-step="2">
+                 <div class="card">
+                    <div class="card-header"><h3>Sensor Configuration</h3></div>
+                    <div class="form-grid">
+                        <div class="form-group"><label for="area">Sensor Area:</label><select id="area" onchange="renderTypeOptions()"><option value="">-- Select Area --</option><option>Safe</option><option>Hazardous</option></select></div>
+                         <div class="form-group"><label>QTY</label><input type="number" id="sensorQty" value="1" min="1" oninput="updateLiveSummary()"></div>
+                    </div>
+                    <div id="sensorTypeContainer"></div>
+                    <div id="sensorMeasurementContainer"></div>
+                    <div id="sensorMakeContainer"></div>
+                    
+                    <!-- Unified container for multiple generators -->
+                    <div id="multi_generator_container" style="display:none;">
+                        <div class="card">
+                             <div class="card-header"><h3>Select Sensor Model</h3></div>
+                             <div class="form-group">
+                                <select id="sensor_model_selector" onchange="showGeneratorPanel()">
+                                    <option value="">-- Choose a Model --</option>
+                                </select>
+                             </div>
+                        </div>
+                        <div id="code_generators_wrapper">
+                            <!-- All individual generator UIs will be injected here -->
+                        </div>
+                    </div>
+                </div>
+                <div class="stepper-navigation"><button onclick="navigateToStep(1)">Previous</button><button onclick="navigateToStep(3)">Next</button></div>
+            </div>
+
+            <div class="form-step" data-step="3">
+                 <div class="card">
+                    <div class="card-header"><h3>Accessories & Junction Box</h3></div>
+                    <div class="form-grid">
+                        <div>
+                            <h4>Extension Cable</h4><br>
+                            <div class="form-group" id="extCableSection"><select id="extCable" onchange="toggleExt()"><option value="NO">Not Required</option><option value="YES">Required</option></select></div>
+                            <div id="extOptions" style="display:none;"><div class="form-group"><label for="extLength"><br>LENGTH</label><select id="extLength" onchange="updateLiveSummary()"><option value="010">10m</option><option value="015">15m</option><option value="020">20m</option><option value="030">30m</option></select></div><pre id="extCode" style="display:none;"></pre></div>
+                            <h4 style="margin-top: 20px;">Mounting Accessories</h4><br>
+                            <label><input type="checkbox" id="mountPad" onchange="updateLiveSummary()">Mounting Pad</label><br>
+                            <div id="padOpts" style="display:none;"><div class="form-group"><label for="padMoc"><br>MOC<br></label><select id="padMoc" onchange="updateLiveSummary()"><option>MS with SS insert (Standard)</option><option>SS304 (Non Standard)</option><option>SS316L (Non Standard)</option></select></div></div><br>
+                            <label><input type="checkbox" id="mountStud" onchange="updateLiveSummary()">Mounting Stud</label>
+                            <div id="studOpts" style="display:none;"><div class="form-group"><label for="threadStd"><br>Thread</label><input type="text" id="threadStd" oninput="updateLiveSummary()" placeholder="ex. M6 x 1.25"></div><div class="form-group"><label for="threadDepth">Depth (mm)</label><input type="number" id="threadDepth" oninput="updateLiveSummary()" placeholder="ex. 10" min="1"></div><div class="form-group"><label for="studMoc">MOC</label><select id="studMoc" onchange="updateLiveSummary()"><option>SS304 (Standard)</option><option>SS316L (Non Standard)</option></select></div></div>
+                        </div>
+                        <div>
+                            <h4>Junction Box</h4><br>
+                            <div class="form-group"><label for="jbMoc">JB MOC</label><input type="text" id="jbMoc" oninput="updateLiveSummary()" placeholder="e.g. FRP"></div>
+                            <div class="form-group"><label><br>CONFIGURATION (In x Out)</label><div style="display:flex; gap:10px;"><input type="number" id="jbIn" oninput="updateLiveSummary()" placeholder="In"><input type="number" id="jbOut" oninput="updateLiveSummary()" placeholder="Out"></div></div>
+                            <div class="form-group"><label for="glandMoc"><br>GLAND MOC</label><input type="text" id="glandMoc" oninput="updateLiveSummary()" placeholder="e.g. SS304"></div>
+                        </div>
+                    </div>
+                </div>
+                 <div class="stepper-navigation"><button onclick="navigateToStep(2)">Previous</button><button onclick="navigateToStep(4)">Next</button></div>
+            </div>
+            
+            <div class="form-step" data-step="4">
+                <div class="card">
+                    <div class="card-header"><h3>Monitoring System</h3></div>
+                    <div class="form-group">
+                        <label for="monitoringRequired">Monitoring System Required?</label>
+                        <select id="monitoringRequired" onchange="renderMonitoringOptions()">
+                            <option value="No">No</option>
+                            <option value="Yes">Yes</option>
+                        </select>
+                    </div>
+                    <div id="monitoringOptionsContainer" style="display:none;">
+                    </div>
+                </div>
+                <div class="stepper-navigation"><button onclick="navigateToStep(3)">Previous</button><button onclick="navigateToStep(5)">Next</button></div>
+            </div>
+
+            <div class="form-step" data-step="5">
+                <div class="card">
+                    <div class="card-header"><h3>Final Configuration & Actions</h3></div>
+                    <div class="button-group">
+                        <button onclick="generateFullSummary()">Generate Text Summary</button>
+                        <button id="generateExcelBtn" onclick="if (validateDetails(true)) generateExcel();">Generate Excel</button>
+                    </div>
+                    <pre id="fullSummaryOutput" style="height: 400px; margin-top:20px; background-color: #f8fafc; padding: 15px; border-radius: 8px; border: 1px solid var(--border-color); white-space: pre-wrap; word-wrap: break-word; overflow-y: auto;">Click "Generate Text Summary" to see your complete configuration.</pre>
+                     <div class="button-group" style="border-top: 1px solid var(--border-color); padding-top: 20px;">
+                        <button id="submitBtn" onclick="toggleSubmit()" data-submitted="false">Submit</button>
+                        <span id="submitStatus" class="not-submitted">❌ Not Submitted</span>
+                    </div>
+                </div>
+                 <div class="stepper-navigation"><button onclick="navigateToStep(4)">Previous</button><button disabled style="visibility: hidden;">Next</button></div>
+            </div>
+        </div>
+        
+        <div class="summary-container">
+            <div id="live-summary">
+                <div class="summary-section">
+                    <h4>Configuration at a Glance</h4>
+                    <div class="summary-item"><span class="summary-key">Customer</span><span class="summary-value" id="summary-customer">...</span></div>
+                    <div class="summary-item"><span class="summary-key">Project</span><span class="summary-value" id="summary-project">...</span></div>
+                </div>
+                <div class="summary-section">
+                    <h4>Machine</h4>
+                    <div class="summary-item"><span class="summary-key">Name</span><span class="summary-value" id="summary-machine">...</span></div>
+                    <div class="summary-item"><span class="summary-key">Type</span><span class="summary-value" id="summary-machine-type">...</span></div>
+                </div>
+                <div class="summary-section">
+                    <h4>Sensor</h4>
+                    <div class="summary-item"><span class="summary-key">Model</span><span class="summary-value" id="summary-sensor-model">...</span></div>
+                    <div class="summary-item"><span class="summary-key">Full Code</span><span class="summary-value mono" id="summary-sensor-code">...</span></div>
+                    <div class="summary-item"><span class="summary-key">Quantity</span><span class="summary-value" id="summary-sensor-qty">...</span></div>
+                </div>
+                 <div class="summary-section">
+                    <h4>Accessories</h4>
+                    <div class="summary-item"><span class="summary-key">Ext. Cable</span><span class="summary-value" id="summary-ext-cable">...</span></div>
+                    <div class="summary-item"><span class="summary-key">Mounting Pad</span><span class="summary-value" id="summary-mount-pad">...</span></div>
+                    <div class="summary-item"><span class="summary-key">Mounting Stud</span><span class="summary-value" id="summary-mount-stud">...</span></div>
+                </div>
+                <div class="summary-section">
+                    <h4>Junction Box</h4>
+                    <div class="summary-item"><span class="summary-key">Required</span><span class="summary-value" id="summary-jb">...</span></div>
+                </div>
+                 <div class="summary-section">
+                    <h4>Monitoring</h4>
+                    <div class="summary-item"><span class="summary-key">System</span><span class="summary-value" id="summary-monitoring-system">Not Required</span></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<script>
+    // --- APP STATE & NAVIGATION ---
+    let currentStep = 1;
+
+    function navigateToStep(stepNumber) 
+    {
+        if (stepNumber > currentStep && !validateDetails()) {
+            alert("Please fill out all required fields in the 'Details & Machine' section before proceeding.");
+            return;
+        }
+        currentStep = stepNumber;
+        document.querySelectorAll('.form-step').forEach(el => el.classList.remove('active'));
+        document.querySelector(`.form-step[data-step='${stepNumber}']`).classList.add('active');
+        document.querySelectorAll('.nav-item').forEach(el => {
+            el.classList.remove('active', 'completed');
+            const step = parseInt(el.getAttribute('data-step'));
+            if (step < stepNumber) el.classList.add('completed');
+            else if (step === stepNumber) el.classList.add('active');
+        });
+    }
+    
+    // --- LIVE SUMMARY ---
+    function updateLiveSummary() {
+        // Details
+        document.getElementById('summary-customer').innerText = document.getElementById('customer').value || '...';
+        document.getElementById('summary-project').innerText = document.getElementById('project').value || '...';
+        document.getElementById('summary-machine').innerText = document.getElementById('Machine').value || '...';
+        document.getElementById('summary-machine-type').innerText = document.getElementById('Machine_Type').value || '...';
+        
+        // Sensor
+        let modelText = '...';
+        let codeText = '...';
+        const activeGenerator = document.querySelector('.generator-panel[style*="display: block"]');
+
+        if(activeGenerator){
+            modelText = activeGenerator.dataset.modelName;
+            codeText = activeGenerator.querySelector('.mono').textContent;
+        } else {
+             const modelEl = document.getElementById('sensorModel');
+             const makeEl = document.getElementById('make');
+             const hazMakeEl = document.getElementById('hazMake');
+             if (modelEl) { modelText = modelEl.value; }
+             else if (makeEl) { modelText = makeEl.options[makeEl.selectedIndex].text; }
+             else if (hazMakeEl) { modelText = hazMakeEl.options[hazMakeEl.selectedIndex].text; }
+        }
+       
+        document.getElementById('summary-sensor-model').innerText = modelText;
+        document.getElementById('summary-sensor-code').innerText = codeText;
+        document.getElementById('summary-sensor-qty').innerText = document.getElementById('sensorQty').value || '...';
+        
+        // Accessories
+        const extSelect = document.getElementById('extCable');
+        const extCableVal = extSelect.value === 'YES' && extSelect.offsetParent !== null ? `Yes (${document.getElementById('extLength').value}m)` : 'No';
+        document.getElementById('summary-ext-cable').innerText = extCableVal;
+        document.getElementById('summary-mount-pad').innerText = document.getElementById('mountPad').checked ? 'Yes' : 'No';
+        document.getElementById('summary-mount-stud').innerText = document.getElementById('mountStud').checked ? 'Yes' : 'No';
+        document.getElementById('summary-jb').innerText = document.getElementById('jbMoc').value ? 'Yes' : 'No';
+
+        // Monitoring
+        let monitoringText = "Not Required";
+        if (document.getElementById('monitoringRequired')?.value === 'Yes') {
+            const modelEl = document.getElementById('monitoringModel');
+            if (modelEl && modelEl.value) {
+                monitoringText = modelEl.options[modelEl.selectedIndex].text;
+            } else {
+                monitoringText = "Yes, pending selection";
+            }
+        }
+        document.getElementById('summary-monitoring-system').innerText = monitoringText;
+    }
+
+    // --- SENSOR CONFIGURATION LOGIC ---
+    function renderTypeOptions() {
+        const area = document.getElementById('area').value;
+        const typeContainer = document.getElementById('sensorTypeContainer');
+        document.getElementById('sensorMeasurementContainer').innerHTML = '';
+        document.getElementById('sensorMakeContainer').innerHTML = '';
+        document.getElementById('multi_generator_container').style.display = 'none'; 
+        if (area) {
+            typeContainer.innerHTML = `<div class="card" style="margin-top:20px;"><div class="card-header" style="margin-bottom:15px"><h3>Sensor Type</h3></div><div class="form-group"><label for="sensorType">Type:</label><select id="sensorType" onchange="renderMeasurementOptions()"><option value="">-- Select --</option><option>Contact</option><option>Non-Contact</option></select></div></div>`;
+        } else { typeContainer.innerHTML = ''; }
+        updateLiveSummary();
+    }
+
+    function renderMeasurementOptions() {
+        const area = document.getElementById('area').value;
+        const type = document.getElementById('sensorType').value;
+        const measurementContainer = document.getElementById('sensorMeasurementContainer');
+        document.getElementById('sensorMakeContainer').innerHTML = '';
+        document.getElementById('multi_generator_container').style.display = 'none'; 
+        let html = '';
+        if (!type) { measurementContainer.innerHTML = ''; updateLiveSummary(); return; }
+        html += '<div class="card" style="margin-top:20px;"><div class="card-header" style="margin-bottom:15px"><h3>Measurement</h3></div><div class="form-group">';
+        if (area === 'Safe' && type === 'Contact') html += `<label for="measurementType">Measurement Type:</label><select id="measurementType" onchange="renderMakeOptions()"><option value="">-- Select --</option><option>Acceleration</option><option>Velocity</option><option>Loop Powered</option></select>`;
+        else if (area === 'Safe' && type === 'Non-Contact') html += `<label for="measurementType">Sensor Type:</label><select id="measurementType" onchange="renderMakeOptions()"><option value="">-- Select --</option><option>Eddy Current</option><option>Loop Powered Eddy Current</option></select>`;
+        else if (area === 'Hazardous' && type === 'Contact') html += `<label for="measurementType">Measurement Type:</label><select id="measurementType" onchange="renderMakeOptions()"><option value="">-- Select --</option><option>Acceleration</option><option>Velocity</option><option>Loop Powered</option></select>`;
+        else if (area === 'Hazardous' && type === 'Non-Contact') html += `<label for="measurementType">Sensor Type:</label><select id="measurementType" onchange="renderMakeOptions()"><option value="">-- Select --</option><option>Eddy Current</option><option>Loop Powered Eddy Current</option></select>`;
+        html += '</div></div>';
+        measurementContainer.innerHTML = html;
+        updateLiveSummary();
+    }
+    
+function renderMakeOptions() {
+    // 1. Get current values using the CORRECT element IDs
+    const area = document.getElementById('area').value;
+    const type = document.getElementById('sensorType').value;
+    const measurement = document.getElementById('measurementType').value;
+
+    // 2. Get the containers we will be modifying
+    const makeContainer = document.getElementById('sensorMakeContainer');
+    const multiGenContainer = document.getElementById('multi_generator_container');
+    const modelSelector = document.getElementById('sensor_model_selector');
+
+    // 3. Reset all containers to a clean state
+    makeContainer.innerHTML = '';
+    multiGenContainer.style.display = 'none';
+    document.getElementById('code_generators_wrapper').querySelectorAll('.generator-panel').forEach(p => p.style.display = 'none');
+    modelSelector.innerHTML = '<option value="">-- Choose a Model --</option>';
+
+    if (!measurement) {
+        updateLiveSummary();
+        return;
+    }
+
+    let modelsToShow = [];
+    let html = ''; // For non-generator HTML
+
+    if (area === 'Safe' && type === 'Non-Contact' && measurement === 'Eddy Current') {
+        modelsToShow = ['FL-202F08', 'FL-143F27', 'FL-202F05', 'FL-202F08R', 'FL-263F55', 'FL-143F28', 'FL-602F18', 'FL-263F50', 'FL-302F10', 'FL-302F10R', 'FL-452F11'];
+    } else if (area === 'Safe' && type === 'Non-Contact' && measurement === 'Loop Powered Eddy Current') {
+        modelsToShow = ['WL-142K05'];
+    } else if (area === 'Safe' && type === 'Contact' && measurement === 'Velocity') {
+        modelsToShow = ['FM-VEL-004B', 'CV-86']; 
+    } else if (area === 'Safe' && type === 'Contact' && measurement === 'Acceleration') {
+        modelsToShow = ['Forbes Marshall: FM-ACCL-100', 'Shinkawa: CB-101'];
+    } else if (area === 'Hazardous' && type === 'Contact' && measurement === 'Velocity') {
+        modelsToShow = ['CV-86/EX'];
+    } else if (area === 'Hazardous' && type === 'Contact' && measurement === 'Acceleration') {
+        modelsToShow = ['CA-302', 'CA-72'];
+    } 
+    else if (area === 'Hazardous' && type === 'Non-Contact' && measurement === 'Eddy Current') {
+        modelsToShow = ['FL-202F08/E50', 'FL-143F27/E50', 'FL-202F05/E50', 'FL-202F08R/E50', 'FL-263F55/E50', 'FL-143F28/E50', 'FL-602F18/E50', 'FL-263F50/E50', 'FL-302F10/E50', 'FL-302F10R/E50', 'FL-452F11/E50'];
+    }
+    // ***** THIS IS THE NEWLY ADDED BLOCK *****
+    else if (area === 'Hazardous' && type === 'Non-Contact' && measurement === 'Loop Powered Eddy Current') {
+        modelsToShow = ['WL-142K05/NB1'];
+    }
+
+    if (modelsToShow.length > 0) {
+        modelsToShow.forEach(model => {
+            // Check if a generator actually exists for this model before adding it
+            if (allGenerators[model]) {
+                modelSelector.add(new Option(model, model));
+            }
+        });
+        multiGenContainer.style.display = 'block';
+        showGeneratorPanel(); // Show the correct panel based on the first model
+        updateLiveSummary();
+        return; 
+    }
+
+    html = '<div class="card" style="margin-top:20px;">';
+
+    if (area === 'Safe' && type === 'Contact' && measurement === 'Loop Powered') {
+        html += `<div class="card-header" style="margin-bottom:15px"><h3>Sensor Details</h3></div>
+                 
+                 <div class="form-group code-display">
+                     <span id="safe-loop-powered-code" class="mono text-2xl"></span>
+                 </div>
+
+                 <div class="form-grid">
+                     <div class="form-group">
+                         <label>MAKE</label>
+                         <select id="make" onchange="updateOptions()">
+                             <option>Shinkawa (CBT)</option>
+                             <option>Forbes Marshall (FM-LPS)</option>
+                         </select>
+                     </div>
+                 </div>
+                 <div class="form-group">
+                     <label>RANGE</label>
+                     <select id="range" onchange="generateSafeLoopPoweredCode()"></select>
+                 </div>
+                 <div class="form-group">
+                     <label>UNIT</label>
+                     <select id="measurement" onchange="generateSafeLoopPoweredCode()">
+                         <option value="P">PEAK</option>
+                         <option value="R">RMS</option>
+                     </select>
+                 </div>
+                 <div id="shinkawaOpts" style="display:none;">
+                     <div class="form-group">
+                         <label>CABLE/CONNECTOR</label>
+                         <select id="yy" onchange="generateSafeLoopPoweredCode()">
+                             <option value="50">2 Pin MS</option>
+                         </select>
+                     </div>
+                 </div>`;
+    } else if (area === 'Hazardous' && type === 'Contact' && measurement === 'Loop Powered') {
+    
+    html += `<div class="card-header" style="margin-bottom:15px"><h3>Make</h3></div>
+             
+             <div class="form-group code-display"><span id="haz-loop-powered-code" class="mono text-2xl"></span></div>
+             
+             <div class="form-group"><select id="hazMake" onchange="renderHazardousDetails()"><option value="">-- Select --</option><option>Monitran</option><option>Wilcoxon</option></select></div>
+             <div id="hazardousDetails"></div>`;
+    } 
+    else {
+        html += '<p style="text-align:center; padding: 20px;">Configuration not available for this selection.</p>';
+    }
+
+    html += '</div>';
+    makeContainer.innerHTML = html;
+
+    // --- IMPORTANT: Activate scripts for the newly added HTML ---
+    if (area === 'Safe' && type === 'Contact' && measurement === 'Loop Powered') {
+        updateOptions(); // This initializes the dependent dropdowns
+        generateSafeLoopPoweredCode(); 
+    }
+
+    
+    updateLiveSummary();
+}
+    
+    // --- MONITORING SYSTEM LOGIC ---
+    function renderMonitoringOptions() {
+        const container = document.getElementById('monitoringOptionsContainer');
+        const isRequired = document.getElementById('monitoringRequired').value === 'Yes';
+        if (isRequired) {
+            container.style.display = 'block';
+            container.innerHTML = `
+                <div class="form-group" style="margin-top:20px;">
+                    <label for="monitoringType">System Type</label>
+                    <select id="monitoringType" onchange="renderMonitoringMake()">
+                        <option value="">-- Select --</option>
+                        <option value="Standalone">Standalone</option>
+                        <option value="API">API</option>
+                    </select>
+                </div>
+                <div id="monitoringMakeContainer"></div>
+                <div id="monitoringModelContainer"></div>`;
+        } else {
+            container.style.display = 'none';
+            container.innerHTML = '';
+        }
+        updateLiveSummary();
+    }
+    
+    function renderMonitoringMake() {
+        const container = document.getElementById('monitoringMakeContainer');
+        const type = document.getElementById('monitoringType').value;
+        document.getElementById('monitoringModelContainer').innerHTML = ''; // Clear model options
+        if (type) {
+            container.innerHTML = `
+                <div class="form-group" style="margin-top:20px;">
+                    <label for="monitoringMake">Make</label>
+                    <select id="monitoringMake" onchange="renderMonitoringModel()">
+                        <option value="">-- Select --</option>
+                        <option value="Shinkawa">Shinkawa</option>
+                        <option value="FM">Forbes Marshall</option>
+                    </select>
+                </div>`;
+        } else { container.innerHTML = ''; }
+        updateLiveSummary();
+    }
+    
+    function renderMonitoringModel() {
+        const container = document.getElementById('monitoringModelContainer');
+        const type = document.getElementById('monitoringType').value;
+        const make = document.getElementById('monitoringMake').value;
+        let options = '';
+        if (type === 'Standalone' && make === 'Shinkawa') options = `<option>VM 21</option><option>VM 25</option>`;
+        else if (type === 'Standalone' && make === 'FM') options = `<option>FM Vibtrans II</option>`;
+        else if (type === 'API' && make === 'Shinkawa') options = `<option>VM 5</option><option>VM 7</option>`;
+        else if (type === 'API' && make === 'FM') options = `<option>Vibtrans R</option>`;
+        
+        if (options) {
+            container.innerHTML = `
+                <div class="form-group" style="margin-top:20px;">
+                    <label for="monitoringModel">Model</label>
+                    <select id="monitoringModel" onchange="updateLiveSummary()"><option value="">-- Select --</option>${options}</select>
+                </div>`;
+        } else { container.innerHTML = ''; }
+        updateLiveSummary();
+    }
+
+    // --- UTILITY & DATA FUNCTIONS ---
+    function validateDetails(isFinal = false) {
+        const fields = ["Engineer", "Email", "Offer_No", "customer", "project", "ref", "branch"];
+        for (const fieldId of fields) {
+            if (!document.getElementById(fieldId).value.trim()) {
+                if (isFinal) {
+                    navigateToStep(1);
+                    alert(`Please enter a value for ${fieldId.replace('_', ' ')}.`);
+                }
+                return false;
+            }
+        }
+        return true;
+    }
+    
+    function updateOptions() {let make = document.getElementById("make").value; let rangeSelect = document.getElementById("range");
+ rangeSelect.innerHTML = "";
+ document.getElementById("shinkawaOpts").style.display = make.includes("Shinkawa") ? "block" : "none";
+ let ranges = make.includes("Shinkawa") ? [10, 20, 25, 50, 100] : [10, 15, 20, 25, 30, 40, 50];
+ ranges.forEach(v => { let opt = document.createElement("option"); opt.value = v; opt.text = `0-${v} mm/sec`; rangeSelect.appendChild(opt); });
+ // This now calls your code generator, which in turn calls updateLiveSummary()
+generateSafeLoopPoweredCode(); 
+}
+    function toggleExt() {
+        const extOpts = document.getElementById("extOptions");
+        const extSelect = document.getElementById("extCable");
+        const hazMake = document.querySelector("#hazMake");
+        const isMonitran = hazMake ? hazMake.value === "Monitran" : false;
+        document.getElementById("extCableSection").style.display = isMonitran ? "none" : "block";
+        extOpts.style.display = extSelect.value === "YES" ? "block" : "none";
+        updateLiveSummary();
+    }
+
+    // --- DYNAMIC CODE GENERATORS ---
+    const allGenerators = {};
+
+    function showGeneratorPanel() {
+        const selectedModel = document.getElementById('sensor_model_selector').value;
+        document.querySelectorAll('.generator-panel').forEach(panel => {
+            panel.style.display = 'none';
+        });
+        if (selectedModel) {
+            const panel = document.getElementById(`generator-${selectedModel}`);
+            if(panel) {
+                panel.style.display = 'block';
+                allGenerators[selectedModel].generateCode();
+            }
+        }
+        updateLiveSummary();
+    }
+    
+    function createGeneratorHTML() {
+        const wrapper = document.getElementById('code_generators_wrapper');
+        let html = '';
+        
+        Object.keys(allGenerators).forEach(modelKey => {
+            const gen = allGenerators[modelKey];
+            html += `<div id="generator-${modelKey}" class="generator-panel" data-model-name="${modelKey}" style="display:none;">
+                <div class="card">
+                    <div class="card-header"><h3>${modelKey} Code Generator</h3></div>
+                    <div class="form-group code-display">
+                         <span id="${gen.prefix}-code" class="mono text-2xl"></span>
+                    </div>
+                    <div class="form-grid">${gen.fieldsHTML}</div>
+                </div>
+            </div>`;
+        });
+
+        wrapper.innerHTML = html;
+        
+        Object.keys(allGenerators).forEach(modelKey => {
+            allGenerators[modelKey].setupEventListeners();
+            allGenerators[modelKey].updateDependentOptions();
+            allGenerators[modelKey].generateCode();
+        });
+    }
+
+    // --- EVENT LISTENERS & INITIALIZATION ---
+    document.addEventListener("DOMContentLoaded", () => { 
+        // Helper HTML strings
+        const armorHTML = `<div class="form-group"><label>Armor</label><select id="{prefix}-a"><option value="L">Without Armor</option><option value="A">With Armor (No Fluoro)</option><option value="T">With Armor (Fluoro)</option></select></div>`;
+        const cableHTML = (id, label) => `<div class="form-group" style="grid-column: 1 / -1;"><label>${label}</label><select id="{prefix}-${id}"><option value="05">0.5m</option><option value="10">1.0m</option><option value="50">5.0m</option><option value="90">9.0m</option></select></div>`;
+
+        // --- Generator Definitions ---
+        allGenerators['FL-202F08'] = {
+            prefix: 'fl202f08',
+            fieldsHTML: `
+                <div class="form-group"><label>Armor</label><select id="fl202f08-x"><option value="L">Without Armor</option><option value="A">With Armor (No Fluoro)</option><option value="T">With Armor (Fluoro)</option></select></div>
+                <div class="form-group"><label>Thread Size</label><select id="fl202f08-yy"><option value="M2">M10 x 1</option><option value="U2">3/8-24UNF</option></select></div>
+                <div class="form-group"><label>Unthreaded Length</label><select id="fl202f08-zz"></select></div>
+                <div class="form-group"><label>Case Length</label><select id="fl202f08-aa"></select></div>
+                ${cableHTML('bb', 'Cable Length').replace('{prefix}', 'fl202f08')}`,
+            updateDependentOptions: function() {
+                const thread = document.getElementById(`${this.prefix}-yy`).value;
+                const zz = document.getElementById(`${this.prefix}-zz`);
+                const aa = document.getElementById(`${this.prefix}-aa`);
+                zz.innerHTML = ''; aa.innerHTML = '';
+                if (thread === 'M2') {
+                    for (let i = 0; i <= 23; i++) zz.add(new Option(`${i*10} mm`, i.toString().padStart(2, '0')));
+                    for (let i = 2; i <= 25; i++) aa.add(new Option(`${i*10} mm`, i.toString().padStart(2, '0')));
+                } else {
+                    for (let i = 0; i <= 92; i++) zz.add(new Option(`${(i/10).toFixed(1)} inch`, i.toString().padStart(2, '0')));
+                    for (let i = 8; i <= 99; i++) aa.add(new Option(`${(i/10).toFixed(1)} inch`, i.toString().padStart(2, '0')));
+                }
+            },
+            generateCode: function() {
+                const parts = ['FL-202F08', 'x', 'yy', 'zz', 'aa', 'bb'].map(p => p.length > 3 ? p : document.getElementById(`${this.prefix}-${p}`).value);
+                document.getElementById(`${this.prefix}-code`).textContent = parts.join('-');
+                updateLiveSummary();
+            },
+            setupEventListeners: function() {
+                document.getElementById(`${this.prefix}-yy`).addEventListener('change', () => { this.updateDependentOptions(); this.generateCode(); });
+                ['x','zz','aa','bb'].forEach(p => document.getElementById(`${this.prefix}-${p}`).addEventListener('change', () => this.generateCode()));
+            }
+        };
+
+        allGenerators['FL-143F27'] = {
+            prefix: 'fl143f27',
+            fieldsHTML: `${armorHTML.replace('{prefix}', 'fl143f27')}
+                <div class="form-group"><label>Thread Size</label><select id="fl143f27-bb"><option value="M1">M30X1.5</option><option value="U1">1-1/4-12UNF</option></select></div>
+                <div class="form-group"><label>Unthreaded Length</label><select id="fl143f27-cc"></select></div>
+                <div class="form-group"><label>Case Length</label><select id="fl143f27-dd"></select></div>
+                ${cableHTML('ee', 'Cable Length').replace('{prefix}', 'fl143f27')}`,
+            updateDependentOptions: function() {
+                const thread = document.getElementById(`${this.prefix}-bb`).value;
+                const cc = document.getElementById(`${this.prefix}-cc`);
+                const dd = document.getElementById(`${this.prefix}-dd`);
+                cc.innerHTML = ''; dd.innerHTML = '';
+                if (thread === 'M1') {
+                    for (let i = 0; i <= 6; i++) cc.add(new Option(`${i*10} mm`, i.toString().padStart(2, '0')));
+                    for (let i = 4; i <= 10; i++) dd.add(new Option(`${i*10} mm`, i.toString().padStart(2, '0')));
+                } else {
+                    for (let i = 0; i <= 24; i++) cc.add(new Option(`${(i/10).toFixed(1)} inch`, i.toString().padStart(2, '0')));
+                    for (let i = 16; i <= 39; i++) dd.add(new Option(`${(i/10).toFixed(1)} inch`, i.toString().padStart(2, '0')));
+                }
+            },
+            generateCode: function() {
+                const parts = ['FL-143F27', 'a', 'bb', 'cc', 'dd', 'ee'].map(p => p.length > 3 ? p : document.getElementById(`${this.prefix}-${p}`).value);
+                document.getElementById(`${this.prefix}-code`).textContent = parts.join('-');
+                updateLiveSummary();
+            },
+            setupEventListeners: function() {
+                document.getElementById(`${this.prefix}-bb`).addEventListener('change', () => { this.updateDependentOptions(); this.generateCode(); });
+                ['a','cc','dd','ee'].forEach(p => document.getElementById(`${this.prefix}-${p}`).addEventListener('change', () => this.generateCode()));
+            }
+        };
+
+        allGenerators['FL-202F05'] = {
+            prefix: 'fl202f05',
+            fieldsHTML: `${armorHTML.replace('{prefix}', 'fl202f05')}
+                <div class="form-group"><label>Thread Size</label><select id="fl202f05-bb"><option value="M1">M8X1</option><option value="U1">1/4-28UNF</option></select></div>
+                <div class="form-group"><label>Unthreaded Length</label><select id="fl202f05-cc"></select></div>
+                <div class="form-group"><label>Case Length</label><select id="fl202f05-dd"></select></div>
+                ${cableHTML('ee', 'Cable Length').replace('{prefix}', 'fl202f05')}`,
+            updateDependentOptions: function() {
+                const thread = document.getElementById(`${this.prefix}-bb`).value;
+                const cc = document.getElementById(`${this.prefix}-cc`);
+                const dd = document.getElementById(`${this.prefix}-dd`);
+                cc.innerHTML = ''; dd.innerHTML = '';
+                if (thread === 'M1') {
+                    for (let i = 0; i <= 23; i++) cc.add(new Option(`${i*10} mm`, i.toString().padStart(2, '0')));
+                    for (let i = 2; i <= 25; i++) dd.add(new Option(`${i*10} mm`, i.toString().padStart(2, '0')));
+                } else {
+                    for (let i = 0; i <= 92; i++) cc.add(new Option(`${(i/10).toFixed(1)} inch`, i.toString().padStart(2, '0')));
+                    for (let i = 8; i <= 99; i++) dd.add(new Option(`${(i/10).toFixed(1)} inch`, i.toString().padStart(2, '0')));
+                }
+            },
+            generateCode: function() {
+                const parts = ['FL-202F05', 'a', 'bb', 'cc', 'dd', 'ee'].map(p => p.length > 3 ? p : document.getElementById(`${this.prefix}-${p}`).value);
+                document.getElementById(`${this.prefix}-code`).textContent = parts.join('-');
+                updateLiveSummary();
+            },
+            setupEventListeners: function() {
+                document.getElementById(`${this.prefix}-bb`).addEventListener('change', () => { this.updateDependentOptions(); this.generateCode(); });
+                ['a','cc','dd','ee'].forEach(p => document.getElementById(`${this.prefix}-${p}`).addEventListener('change', () => this.generateCode()));
+            }
+        };
+
+        allGenerators['FL-202F08R'] = {
+            prefix: 'fl202f08r',
+            fieldsHTML: `
+                <div class="form-group"><label>Thread Size</label><select id="fl202f08r-aa"><option value="M2">M10X1</option><option value="U2">3/8-24UNF</option></select></div>
+                <div class="form-group"><label>Unthreaded Length</label><select id="fl202f08r-bb"></select></div>
+                <div class="form-group"><label>Case Length</label><select id="fl202f08r-cc"></select></div>
+                ${cableHTML('dd', 'Cable Length').replace('{prefix}', 'fl202f08r')}`,
+            updateDependentOptions: function() {
+                const thread = document.getElementById(`${this.prefix}-aa`).value;
+                const bb = document.getElementById(`${this.prefix}-bb`);
+                const cc = document.getElementById(`${this.prefix}-cc`);
+                bb.innerHTML = ''; cc.innerHTML = '';
+                if (thread === 'M2') {
+                    bb.add(new Option('5mm', 'R5'));
+                    cc.add(new Option('30mm', '03'));
+                } else {
+                    bb.add(new Option('-0.2 inch', '02'));
+                    cc.add(new Option('-1.2 inch', '12'));
+                }
+            },
+            generateCode: function() {
+                const parts = ['FL-202F08R', 'aa', 'bb', 'cc', 'dd'].map(p => p.length > 3 ? p : document.getElementById(`${this.prefix}-${p}`).value);
+                document.getElementById(`${this.prefix}-code`).textContent = parts.join('-');
+                updateLiveSummary();
+            },
+            setupEventListeners: function() {
+                document.getElementById(`${this.prefix}-aa`).addEventListener('change', () => { this.updateDependentOptions(); this.generateCode(); });
+                ['bb','cc','dd'].forEach(p => document.getElementById(`${this.prefix}-${p}`).addEventListener('change', () => this.generateCode()));
+            }
+        };
+
+        allGenerators['FL-263F55'] = {
+            prefix: 'fl263f55',
+            fieldsHTML: armorHTML.replace('{prefix}', 'fl263f55') + cableHTML('bb', 'BB: Cable Length').replace('{prefix}', 'fl263f55'),
+            updateDependentOptions: function() {},
+            generateCode: function() {
+                const parts = ['FL-263F55', document.getElementById('fl263f55-a').value, 'M1', '00', '00', document.getElementById('fl263f55-bb').value];
+                document.getElementById(`${this.prefix}-code`).textContent = parts.join('-');
+                updateLiveSummary();
+            },
+            setupEventListeners: function() {
+                ['a', 'bb'].forEach(p => document.getElementById(`${this.prefix}-${p}`).addEventListener('change', () => this.generateCode()));
+            }
+        };
+
+        allGenerators['FL-143F28'] = {
+            prefix: 'fl143f28',
+            fieldsHTML: armorHTML.replace('{prefix}', 'fl143f28') + cableHTML('bb', 'BB: Cable Length').replace('{prefix}', 'fl143f28') + `<div class="form-group" style="grid-column: 1 / -1;"><label>Thread Size (Fixed)</label><input type="text" value="4-M6 DEPTH 14" readonly></div>`,
+            updateDependentOptions: function() {},
+            generateCode: function() {
+                const parts = ['FL-143F28', document.getElementById('fl143f28-a').value, 'M1', '00', '00', document.getElementById('fl143f28-bb').value];
+                document.getElementById(`${this.prefix}-code`).textContent = parts.join('-');
+                updateLiveSummary();
+            },
+            setupEventListeners: function() {
+                ['a', 'bb'].forEach(p => document.getElementById(`${this.prefix}-${p}`).addEventListener('change', () => this.generateCode()));
+            }
+        };
+        
+        allGenerators['FL-602F18'] = {
+            prefix: 'fl602f18',
+            fieldsHTML: `${armorHTML.replace('{prefix}', 'fl602f18')}
+                <div class="form-group"><label>BB: Thread Size</label><select id="fl602f18-bb"><option value="M1">M20X1.5</option><option value="U1">7/8-14 UNF</option></select></div>
+                <div class="form-group"><label>CC: Unthreaded Length</label><select id="fl602f18-cc"></select></div>
+                <div class="form-group"><label>DD: Case Length</label><select id="fl602f18-dd"></select></div>
+                ${cableHTML('ee', 'EE: Cable Length').replace('{prefix}', 'fl602f18')}`,
+            updateDependentOptions: function() {
+                const thread = document.getElementById(`${this.prefix}-bb`).value;
+                const cc = document.getElementById(`${this.prefix}-cc`);
+                const dd = document.getElementById(`${this.prefix}-dd`);
+                cc.innerHTML = ''; dd.innerHTML = '';
+                if (thread === 'M1') {
+                    for (let i = 0; i <= 8; i++) cc.add(new Option(`${i*10} mm`, i.toString().padStart(2, '0')));
+                    for (let i = 4; i <= 12; i++) dd.add(new Option(`${i*10} mm`, i.toString().padStart(2, '0')));
+                } else {
+                    for (let i = 0; i <= 31; i++) cc.add(new Option(`${(i/10).toFixed(1)} inch`, i.toString().padStart(2, '0')));
+                    for (let i = 16; i <= 47; i++) dd.add(new Option(`${(i/10).toFixed(1)} inch`, i.toString().padStart(2, '0')));
+                }
+            },
+            generateCode: function() {
+                const parts = ['FL-602F18', 'a', 'bb', 'cc', 'dd', 'ee'].map(p => p.length > 3 ? p : document.getElementById(`${this.prefix}-${p}`).value);
+                document.getElementById(`${this.prefix}-code`).textContent = parts.join('-');
+                updateLiveSummary();
+            },
+            setupEventListeners: function() {
+                document.getElementById(`${this.prefix}-bb`).addEventListener('change', () => { this.updateDependentOptions(); this.generateCode(); });
+                ['a','cc','dd','ee'].forEach(p => document.getElementById(`${this.prefix}-${p}`).addEventListener('change', () => this.generateCode()));
+            }
+        };
+
+        allGenerators['FL-263F50'] = {
+            prefix: 'fl263f50',
+            fieldsHTML: `${armorHTML.replace('{prefix}', 'fl263f50')}
+                <div class="form-group"><label>BB: Thread Size</label><select id="fl263f50-bb"><option value="M1">M24X1.5</option><option value="U1">1-12 UNF</option></select></div>
+                <div class="form-group"><label>CC: Case Length</label><select id="fl263f50-cc"></select></div>
+                ${cableHTML('dd', 'DD: Cable Length').replace('{prefix}', 'fl263f50')}`,
+            updateDependentOptions: function() {
+                const thread = document.getElementById(`${this.prefix}-bb`).value;
+                const cc = document.getElementById(`${this.prefix}-cc`);
+                cc.innerHTML = '';
+                if (thread === 'M1') {
+                    for (let i = 4; i <= 10; i++) cc.add(new Option(`${i*10} mm`, i.toString().padStart(2, '0')));
+                } else {
+                    for (let i = 16; i <= 39; i++) cc.add(new Option(`${(i/10).toFixed(1)} inch`, i.toString().padStart(2, '0')));
+                }
+            },
+            generateCode: function() {
+                const parts = ['FL-263F50', 'a', 'bb', '00', 'cc', 'dd'].map(p => p.length > 3 ? p : (p === '00' ? '00' : document.getElementById(`${this.prefix}-${p}`).value));
+                document.getElementById(`${this.prefix}-code`).textContent = parts.join('-');
+                updateLiveSummary();
+            },
+            setupEventListeners: function() {
+                document.getElementById(`${this.prefix}-bb`).addEventListener('change', () => { this.updateDependentOptions(); this.generateCode(); });
+                ['a','cc','dd'].forEach(p => document.getElementById(`${this.prefix}-${p}`).addEventListener('change', () => this.generateCode()));
+            }
+        };
+
+        allGenerators['FL-302F10'] = {
+            prefix: 'fl302f10',
+            fieldsHTML: `${armorHTML.replace('{prefix}', 'fl302f10')}
+                <div class="form-group"><label>BB: Thread Size</label><select id="fl302f10-bb"><option value="M1">M12X1.25</option><option value="U1">1/2-20 UNF</option></select></div>
+                <div class="form-group"><label>CC: Unthreaded Length</label><select id="fl302f10-cc"></select></div>
+                <div class="form-group"><label>DD: Case Length</label><select id="fl302f10-dd"></select></div>
+                ${cableHTML('ee', 'EE: Cable Length').replace('{prefix}', 'fl302f10')}`,
+            updateDependentOptions: function() {
+                const thread = document.getElementById(`${this.prefix}-bb`).value;
+                const cc = document.getElementById(`${this.prefix}-cc`);
+                const dd = document.getElementById(`${this.prefix}-dd`);
+                cc.innerHTML = ''; dd.innerHTML = '';
+                if (thread === 'M1') {
+                    for (let i = 0; i <= 10; i++) cc.add(new Option(`${i*10} mm`, i.toString().padStart(2, '0')));
+                    for (let i = 2; i <= 12; i++) dd.add(new Option(`${i*10} mm`, i.toString().padStart(2, '0')));
+                } else {
+                    for (let i = 0; i <= 40; i++) cc.add(new Option(`${(i/10).toFixed(1)} inch`, i.toString().padStart(2, '0')));
+                    for (let i = 8; i <= 47; i++) dd.add(new Option(`${(i/10).toFixed(1)} inch`, i.toString().padStart(2, '0')));
+                }
+            },
+            generateCode: function() {
+                const parts = ['FL-302F10', 'a', 'bb', 'cc', 'dd', 'ee'].map(p => p.length > 3 ? p : document.getElementById(`${this.prefix}-${p}`).value);
+                document.getElementById(`${this.prefix}-code`).textContent = parts.join('-');
+                updateLiveSummary();
+            },
+            setupEventListeners: function() {
+                document.getElementById(`${this.prefix}-bb`).addEventListener('change', () => { this.updateDependentOptions(); this.generateCode(); });
+                ['a','cc','dd','ee'].forEach(p => document.getElementById(`${this.prefix}-${p}`).addEventListener('change', () => this.generateCode()));
+            }
+        };
+        
+        allGenerators['FL-302F10R'] = {
+            prefix: 'fl302f10r',
+            fieldsHTML: `
+                <div class="form-group"><label>Thread Size</label><select id="fl302f10r-aa"><option value="M1">M12X1.25</option><option value="U1">1/2-20 UNF</option></select></div>
+                <div class="form-group"><label>Unthreaded Length</label><select id="fl302f10r-bb"></select></div>
+                <div class="form-group"><label>Case Length</label><select id="fl302f10r-cc"></select></div>
+                ${cableHTML('dd', 'Cable Length').replace('{prefix}', 'fl302f10r')}`,
+            updateDependentOptions: function() {
+                const thread = document.getElementById(`${this.prefix}-aa`).value;
+                const bb = document.getElementById(`${this.prefix}-bb`);
+                const cc = document.getElementById(`${this.prefix}-cc`);
+                bb.innerHTML = ''; cc.innerHTML = '';
+                if (thread === 'M1') {
+                    bb.add(new Option('2mm', 'R2'));
+                    cc.add(new Option('25mm', '03'));
+                } else {
+                    bb.add(new Option('0.1 inch', '01'));
+                    cc.add(new Option('1.0 inch', '10'));
+                }
+            },
+            generateCode: function() {
+                const parts = ['FL-302F10R', 'aa', 'bb', 'cc', 'dd'].map(p => p.length > 3 ? p : document.getElementById(`${this.prefix}-${p}`).value);
+                document.getElementById(`${this.prefix}-code`).textContent = parts.join('-');
+                updateLiveSummary();
+            },
+            setupEventListeners: function() {
+                document.getElementById(`${this.prefix}-aa`).addEventListener('change', () => { this.updateDependentOptions(); this.generateCode(); });
+                ['bb','cc','dd'].forEach(p => document.getElementById(`${this.prefix}-${p}`).addEventListener('change', () => this.generateCode()));
+            }
+        };
+
+        allGenerators['FL-452F11'] = {
+            prefix: 'fl452f11',
+            fieldsHTML: `${armorHTML.replace('{prefix}', 'fl452f11')}
+                <div class="form-group"><label>Thread Size</label><select id="fl452f11-bb"><option value="M1">M14X1.5</option><option value="U1">1/2-20 UNF</option></select></div>
+                <div class="form-group"><label>Unthreaded Length</label><select id="fl452f11-cc"></select></div>
+                <div class="form-group"><label>Case Length</label><select id="fl452f11-dd"></select></div>
+                ${cableHTML('ee', 'Cable Length').replace('{prefix}', 'fl452f11')}`,
+            updateDependentOptions: function() {
+                const thread = document.getElementById(`${this.prefix}-bb`).value;
+                const cc = document.getElementById(`${this.prefix}-cc`);
+                const dd = document.getElementById(`${this.prefix}-dd`);
+                cc.innerHTML = ''; dd.innerHTML = '';
+                if (thread === 'M1') {
+                    for (let i = 0; i <= 10; i++) cc.add(new Option(`${i*10} mm`, i.toString().padStart(2, '0')));
+                    for (let i = 2; i <= 12; i++) dd.add(new Option(`${i*10} mm`, i.toString().padStart(2, '0')));
+                } else {
+                    for (let i = 0; i <= 40; i++) cc.add(new Option(`${(i/10).toFixed(1)} inch`, i.toString().padStart(2, '0')));
+                    for (let i = 8; i <= 47; i++) dd.add(new Option(`${(i/10).toFixed(1)} inch`, i.toString().padStart(2, '0')));
+                }
+            },
+            generateCode: function() {
+                const parts = ['FL-452F11', 'a', 'bb', 'cc', 'dd', 'ee'].map(p => p.length > 3 ? p : document.getElementById(`${this.prefix}-${p}`).value);
+                document.getElementById(`${this.prefix}-code`).textContent = parts.join('-');
+                updateLiveSummary();
+            },
+            setupEventListeners: function() {
+                document.getElementById(`${this.prefix}-bb`).addEventListener('change', () => { this.updateDependentOptions(); this.generateCode(); });
+                ['a','cc','dd','ee'].forEach(p => document.getElementById(`${this.prefix}-${p}`).addEventListener('change', () => this.generateCode()));
+            }
+        };
+        
+
+        allGenerators['WL-142K05'] = {
+    prefix: 'wl142k05',
+    fieldsHTML: `${armorHTML.replace('{prefix}', 'wl142k05')}
+        <div class="form-group"><label>Thread Size</label><select id="wl142k05-bb">
+            <option value="M1">M8X1</option>
+            <option value="M2">M10X1</option>
+            <option value="U1">1/4-28 UNF-2A</option>
+            <option value="U2">3/8-24 UNF-2A</option>
+        </select></div>
+        <div class="form-group"><label>CC: Unthreaded Length</label><select id="wl142k05-cc"></select></div>
+        <div class="form-group"><label>DD: Case Length</label><select id="wl142k05-dd"></select></div>
+        <div class="form-group"><label>E: Cable Length</label><select id="wl142k05-e">
+            <option value="1">0.5m</option><option value="2">1.0m</option><option value="3">5.0m</option><option value="4">7.0m</option><option value="5">9.0m</option>
+        </select></div>`, // NB1 div removed from here
+
+    updateDependentOptions: function() {
+        const thread = document.getElementById(`${this.prefix}-bb`).value;
+        const cc = document.getElementById(`${this.prefix}-cc`);
+        const dd = document.getElementById(`${this.prefix}-dd`);
+        cc.innerHTML = ''; dd.innerHTML = '';
+        if (thread.startsWith('M')) { // M1 or M2
+            for (let i = 0; i <= 23; i++) cc.add(new Option(`${i*10} mm`, i.toString().padStart(2, '0')));
+            for (let i = 2; i <= 25; i++) dd.add(new Option(`${i*10} mm`, i.toString().padStart(2, '0')));
+        } else { // U1 or U2
+            for (let i = 0; i <= 92; i++) cc.add(new Option(`${(i/10).toFixed(1)} inch`, i.toString().padStart(2, '0')));
+            for (let i = 8; i <= 99; i++) dd.add(new Option(`${(i/10).toFixed(1)} inch`, i.toString().padStart(2, '0')));
+        }
+    },
+    generateCode: function() {
+        const parts = ['WL-142K05', 'a', 'bb', 'cc', 'dd', 'e'].map(p => p.length > 3 ? p : document.getElementById(`${this.prefix}-${p}`).value);
+        document.getElementById(`${this.prefix}-code`).textContent = `${parts.join('-')}`;
+        updateLiveSummary(); // Corrected function name from 'SummaFry' to 'Summary'
+    },
+    setupEventListeners: function() {
+        document.getElementById(`${this.prefix}-bb`).addEventListener('change', () => { this.updateDependentOptions(); this.generateCode(); });
+        ['a','cc','dd','e'].forEach(p => document.getElementById(`${this.prefix}-${p}`).addEventListener('change', () => this.generateCode()));
+    }
+};
+
+        // --- New Contact Sensor Generators ---
+        allGenerators['FM-VEL-004B'] = {
+            prefix: 'fmvel004b',
+            fieldsHTML: `
+                <div class="form-group"><label>Cable Type</label><select id="fmvel004b-x"><option value="1">2 pin connector</option><option value="2">5m integral PU cable</option><option value="3">10m integral PU cable</option></select></div>
+                <div class="form-group"><label>Thread Size (Fixed)</label><input type="text" value="1/4''-28 UNF, female" readonly></div>`,
+            updateDependentOptions: function() {},
+            generateCode: function() {
+                const x = document.getElementById(`${this.prefix}-x`).value;
+                document.getElementById(`${this.prefix}-code`).textContent = `FM-VEL-004B-1${x}1`;
+                updateLiveSummary();
+            },
+            setupEventListeners: function() {
+                document.getElementById(`${this.prefix}-x`).addEventListener('change', () => this.generateCode());
+            }
+        };
+        allGenerators['CV-86'] = {
+    prefix: 'cv86',
+    fieldsHTML: `
+        <div class="form-group">
+            <label>A: Cable Type</label>
+            <select id="cv86-a">
+                <option value="1">Connector Type</option>
+                <option value="2">With Integral cable type (coaxial cable 3m standard)</option>
+            </select>
+        </div>
+    `,
+    updateDependentOptions: function() {
+        // No dependent options for this model.
+    },
+    generateCode: function() {
+        const a_code = document.getElementById(`${this.prefix}-a`).value;
+        const finalCode = `CV-86${a_code}`;
+        
+        document.getElementById(`${this.prefix}-code`).textContent = finalCode;
+        updateLiveSummary();
+    },
+    setupEventListeners: function() {
+        document.getElementById(`${this.prefix}-a`).addEventListener('change', () => {
+            this.generateCode();
+        });
+    }
+};
+        
+        allGenerators['Forbes Marshall: FM-ACCL-100'] = {
+            prefix: 'fmaccl100',
+            fieldsHTML: `
+                <div class="form-group"><label>Cable Type</label><select id="fmaccl100-x"><option value="1">Connector</option><option value="2">5m integral cable</option><option value="3">10m integral cable</option></select></div>
+                 <div class="form-group"><label>Thread Size (Fixed)</label><input type="text" value="1/4''-28 UNF, female" readonly></div>`,
+            updateDependentOptions: function() {},
+            generateCode: function() {
+                const x = document.getElementById(`${this.prefix}-x`).value;
+                document.getElementById(`${this.prefix}-code`).textContent = `FM-ACCL-100-1${x}1`;
+                updateLiveSummary();
+            },
+            setupEventListeners: function() {
+                document.getElementById(`${this.prefix}-x`).addEventListener('change', () => this.generateCode());
+            }
+        };
+        allGenerators['Shinkawa: CB-101'] = {
+    prefix: 'cb101',
+    fieldsHTML: `
+        <div class="form-group">
+            <label>X: Extra Options</label>
+            <select id="cb101-x">
+                <option value="0">Standard (None)</option>
+                <option value="F">Filtered</option>
+                <option value="T">Temperature Output</option>
+                <option value="Y">5% Tolerance</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>CCC: Sensitivity</label>
+            <select id="cb101-ccc">
+                <option value="010">10mV/g (±800g)</option>
+                <option value="030">30mV/g (±250g)</option>
+                <option value="050">50mV/g (±160g)</option>
+                <option value="100">100mV/g (±80g)</option>
+                <option value="250">250mV/g (±32g)</option>
+                <option value="500">500mV/g (±16g)</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>ZZ: Cable/Connector</label>
+            <select id="cb101-zz">
+                <option value="50">2 Pin MS Connector</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>AA: Mounting Threads</label>
+            <select id="cb101-aa">
+                <option value="01">¼-28” UNF Female</option>
+                <option value="02">¼-28” UNF Male</option>
+                <option value="05">Quick Fit Female</option>
+                <option value="06">M6 x 1mm Male</option>
+                <option value="08">M8 x 1.25mm Male</option>
+                <option value="10">M10 x 1.5mm Male</option>
+            </select>
+        </div>
+    `,
+
+    // FIX 1: Add the missing function (even if it's empty) to prevent the error
+    updateDependentOptions: function() {
+        // This function is called by the event listener, so it must exist.
+    },
+
+    generateCode: function() {
+        const x = document.getElementById(`${this.prefix}-x`).value;
+        const ccc = document.getElementById(`${this.prefix}-ccc`).value;
+        const zz = document.getElementById(`${this.prefix}-zz`).value;
+        const aa = document.getElementById(`${this.prefix}-aa`).value;
+        
+        const finalCode = `CB-101-${x}-${ccc}-${zz}-${aa}`;
+        document.getElementById(`${this.prefix}-code`).textContent = finalCode;
+        updateLiveSummary();
+    },
+
+    // FIX 2: Correct the event listeners to include 'zz' and safely call the functions
+    setupEventListeners: function() {
+        // Added 'zz' to this array and removed the separate broken listener
+        ['x', 'ccc', 'aa', 'zz'].forEach(p => {
+            const el = document.getElementById(`${this.prefix}-${p}`);
+            if (el) {
+                el.addEventListener('change', () => {
+                    this.updateDependentOptions(); // This call is now safe
+                    this.generateCode();
+                });
+                // The 'input' listener was removed as it's not needed for <select> elements
+            }
+        });
+    }
+};
+
+        allGenerators['CA-302'] = {
+    prefix: 'ca302',
+    fieldsHTML: `
+        <div class="form-group"><label>Armor</label><select id="ca302-a"><option value="0">Without</option><option value="1">With</option></select></div>
+        <div class="form-group"><label>Safety</label><select id="ca302-b">
+            <option value="0">TIIS EX ia II B T3 X</option>
+            <option value="1">TIIS EX ia II B T4 X</option>
+            <option value="2">TIIS EX ia II C T3 X</option>
+            <option value="7">NEPSI EX ia II B T4 X</option>
+            <option value="8">KTL EX ia II C T4</option>
+        </select></div>`,
+    updateDependentOptions: function() {},
+    generateCode: function() {
+        const a = document.getElementById(`${this.prefix}-a`).value;
+        const b = document.getElementById(`${this.prefix}-b`).value;
+        // CORRECTED: Added a hyphen before the EX safety code
+        document.getElementById(`${this.prefix}-code`).textContent = `CA-302-00${a}/EX-${b}`;
+        updateLiveSummary();
+    },
+    setupEventListeners: function() {
+        ['a', 'b'].forEach(p => document.getElementById(`${this.prefix}-${p}`).addEventListener('change', () => this.generateCode()));
+    }
+};      
+        allGenerators['CA-72'] = {
+    prefix: 'ca72',
+    fieldsHTML: `<div class="form-group"><label>Cable Type</label><select id="ca72-x"><option value="1">Connector</option><option value="2">With integral cable</option></select></div>`,
+    updateDependentOptions: function() {},
+    generateCode: function() {
+        const x = document.getElementById(`${this.prefix}-x`).value;
+        // CORRECTED: Added a hyphen separator
+        document.getElementById(`${this.prefix}-code`).textContent = `CA-72-${x}`;
+        updateLiveSummary();
+    },
+    setupEventListeners: function() {
+        document.getElementById(`${this.prefix}-x`).addEventListener('change', () => this.generateCode());
+    }
+};
+        allGenerators['CV-86/EX'] = {
+    prefix: 'cv86ex',
+    fieldsHTML: `
+        <div class="form-group">
+            <label>Cable Type</label>
+            <select id="cv86ex-a">
+                <option value="1">Connector Type</option>
+                <option value="2">With Integral cable</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>Safety</label>
+            <select id="cv86ex-b">
+                <option value="1">TIIS (EX ia II A T4 X)</option>
+                <option value="7">NEPSI (EX ia II A T4)</option>
+                <option value="8">KTL (EX ia II A T4)</option>
+            </select>
+        </div>`,
+    updateSafetyOptions: function() {
+        const cableType = document.getElementById(`${this.prefix}-a`).value;
+        const safetySelect = document.getElementById(`${this.prefix}-b`);
+        const ktlOption = safetySelect.querySelector('option[value="8"]');
+        if (cableType === '2') {
+            if (safetySelect.value === '8') {
+                safetySelect.value = '1';
+            }
+            ktlOption.style.display = 'none';
+        } else {
+            ktlOption.style.display = 'block';
+        }
+    },
+    updateDependentOptions: function() {
+        this.updateSafetyOptions();
+    },
+    generateCode: function() {
+        const a = document.getElementById(`${this.prefix}-a`).value;
+        const b = document.getElementById(`${this.prefix}-b`).value;
+        // CORRECTED: Added hyphens for clarity
+        document.getElementById(`${this.prefix}-code`).textContent = `CV-86-${a}/EX-${b}`;
+        updateLiveSummary();
+    },
+    setupEventListeners: function() {
+        document.getElementById(`${this.prefix}-a`).addEventListener('change', () => {
+            this.updateSafetyOptions();
+            this.generateCode();
+        });
+        document.getElementById(`${this.prefix}-b`).addEventListener('change', () => this.generateCode());
+    }
+};
+
+allGenerators['FL-202F08/E50'] = {
+            prefix: 'fl202f08e50',
+            fieldsHTML: `
+                <div class="form-group"><label>Armor</label><select id="fl202f08e50-x"><option value="L">Without Armor</option><option value="A">With Armor (No Fluoro)</option><option value="T">With Armor (Fluoro)</option></select></div>
+                <div class="form-group"><label>Thread Size</label><select id="fl202f08e50-yy"><option value="M2">M10 x 1</option><option value="U2">3/8-24UNF</option></select></div>
+                <div class="form-group"><label>Unthreaded Length</label><select id="fl202f08e50-zz"></select></div>
+                <div class="form-group"><label>Case Length</label><select id="fl202f08e50-aa"></select></div>
+                ${cableHTML('bb', 'Cable Length').replace('{prefix}', 'fl202f08e50')}`,
+            updateDependentOptions: function() {
+                const thread = document.getElementById(`${this.prefix}-yy`).value;
+                const zz = document.getElementById(`${this.prefix}-zz`);
+                const aa = document.getElementById(`${this.prefix}-aa`);
+                zz.innerHTML = ''; aa.innerHTML = '';
+                if (thread === 'M2') {
+                    for (let i = 0; i <= 23; i++) zz.add(new Option(`${i*10} mm`, i.toString().padStart(2, '0')));
+                    for (let i = 2; i <= 25; i++) aa.add(new Option(`${i*10} mm`, i.toString().padStart(2, '0')));
+                } else {
+                    for (let i = 0; i <= 92; i++) zz.add(new Option(`${(i/10).toFixed(1)} inch`, i.toString().padStart(2, '0')));
+                    for (let i = 8; i <= 99; i++) aa.add(new Option(`${(i/10).toFixed(1)} inch`, i.toString().padStart(2, '0')));
+                }
+            },
+            generateCode: function() {
+                const parts = ['FL-202F08/E50', 'x', 'yy', 'zz', 'aa', 'bb'].map(p => p.length > 3 ? p : document.getElementById(`${this.prefix}-${p}`).value);
+                document.getElementById(`${this.prefix}-code`).textContent = parts.join('-');
+                updateLiveSummary();
+            },
+            setupEventListeners: function() {
+                document.getElementById(`${this.prefix}-yy`).addEventListener('change', () => { this.updateDependentOptions(); this.generateCode(); });
+                ['x','zz','aa','bb'].forEach(p => document.getElementById(`${this.prefix}-${p}`).addEventListener('change', () => this.generateCode()));
+            }
+        };
+
+        allGenerators['FL-143F27/E50'] = {
+            prefix: 'fl143f27e50',
+            fieldsHTML: `${armorHTML.replace('{prefix}', 'fl143f27e50')}
+                <div class="form-group"><label>Thread Size</label><select id="fl143f27e50-bb"><option value="M1">M30X1.5</option><option value="U1">1-1/4-12UNF</option></select></div>
+                <div class="form-group"><label>Unthreaded Length</label><select id="fl143f27e50-cc"></select></div>
+                <div class="form-group"><label>Case Length</label><select id="fl143f27e50-dd"></select></div>
+                ${cableHTML('ee', 'Cable Length').replace('{prefix}', 'fl143f27e50')}`,
+            updateDependentOptions: function() {
+                const thread = document.getElementById(`${this.prefix}-bb`).value;
+                const cc = document.getElementById(`${this.prefix}-cc`);
+                const dd = document.getElementById(`${this.prefix}-dd`);
+                cc.innerHTML = ''; dd.innerHTML = '';
+                if (thread === 'M1') {
+                    for (let i = 0; i <= 6; i++) cc.add(new Option(`${i*10} mm`, i.toString().padStart(2, '0')));
+                    for (let i = 4; i <= 10; i++) dd.add(new Option(`${i*10} mm`, i.toString().padStart(2, '0')));
+                } else {
+                    for (let i = 0; i <= 24; i++) cc.add(new Option(`${(i/10).toFixed(1)} inch`, i.toString().padStart(2, '0')));
+                    for (let i = 16; i <= 39; i++) dd.add(new Option(`${(i/10).toFixed(1)} inch`, i.toString().padStart(2, '0')));
+                }
+            },
+            generateCode: function() {
+                const parts = ['FL-143F27/E50', 'a', 'bb', 'cc', 'dd', 'ee'].map(p => p.length > 3 ? p : document.getElementById(`${this.prefix}-${p}`).value);
+                document.getElementById(`${this.prefix}-code`).textContent = parts.join('-');
+                updateLiveSummary();
+            },
+            setupEventListeners: function() {
+                document.getElementById(`${this.prefix}-bb`).addEventListener('change', () => { this.updateDependentOptions(); this.generateCode(); });
+                ['a','cc','dd','ee'].forEach(p => document.getElementById(`${this.prefix}-${p}`).addEventListener('change', () => this.generateCode()));
+            }
+        };
+
+        allGenerators['FL-202F05/E50'] = {
+            prefix: 'fl202f05e50',
+            fieldsHTML: `${armorHTML.replace('{prefix}', 'fl202f05e50')}
+                <div class="form-group"><label>Thread Size</label><select id="fl202f05e50-bb"><option value="M1">M8X1</option><option value="U1">1/4-28UNF</option></select></div>
+                <div class="form-group"><label>Unthreaded Length</label><select id="fl202f05e50-cc"></select></div>
+                <div class="form-group"><label>Case Length</label><select id="fl202f05e50-dd"></select></div>
+                ${cableHTML('ee', 'Cable Length').replace('{prefix}', 'fl202f05e50')}`,
+            updateDependentOptions: function() {
+                const thread = document.getElementById(`${this.prefix}-bb`).value;
+                const cc = document.getElementById(`${this.prefix}-cc`);
+                const dd = document.getElementById(`${this.prefix}-dd`);
+                cc.innerHTML = ''; dd.innerHTML = '';
+                if (thread === 'M1') {
+                    for (let i = 0; i <= 23; i++) cc.add(new Option(`${i*10} mm`, i.toString().padStart(2, '0')));
+                    for (let i = 2; i <= 25; i++) dd.add(new Option(`${i*10} mm`, i.toString().padStart(2, '0')));
+                } else {
+                    for (let i = 0; i <= 92; i++) cc.add(new Option(`${(i/10).toFixed(1)} inch`, i.toString().padStart(2, '0')));
+                    for (let i = 8; i <= 99; i++) dd.add(new Option(`${(i/10).toFixed(1)} inch`, i.toString().padStart(2, '0')));
+                }
+            },
+            generateCode: function() {
+                const parts = ['FL-202F05/E50', 'a', 'bb', 'cc', 'dd', 'ee'].map(p => p.length > 3 ? p : document.getElementById(`${this.prefix}-${p}`).value);
+                document.getElementById(`${this.prefix}-code`).textContent = parts.join('-');
+                updateLiveSummary();
+            },
+            setupEventListeners: function() {
+                document.getElementById(`${this.prefix}-bb`).addEventListener('change', () => { this.updateDependentOptions(); this.generateCode(); });
+                ['a','cc','dd','ee'].forEach(p => document.getElementById(`${this.prefix}-${p}`).addEventListener('change', () => this.generateCode()));
+            }
+        };
+
+        allGenerators['FL-202F08R/E50'] = {
+            prefix: 'fl202f08re50',
+            fieldsHTML: `
+                <div class="form-group"><label>Thread Size</label><select id="fl202f08re50-aa"><option value="M2">M10X1</option><option value="U2">3/8-24UNF</option></select></div>
+                <div class="form-group"><label>Unthreaded Length</label><select id="fl202f08re50-bb"></select></div>
+                <div class="form-group"><label>Case Length</label><select id="fl202f08re50-cc"></select></div>
+                ${cableHTML('dd', 'Cable Length').replace('{prefix}', 'fl202f08re50')}`,
+            updateDependentOptions: function() {
+                const thread = document.getElementById(`${this.prefix}-aa`).value;
+                const bb = document.getElementById(`${this.prefix}-bb`);
+                const cc = document.getElementById(`${this.prefix}-cc`);
+                bb.innerHTML = ''; cc.innerHTML = '';
+                if (thread === 'M2') {
+                    bb.add(new Option('5mm', 'R5'));
+                    cc.add(new Option('30mm', '03'));
+                } else {
+                    bb.add(new Option('-0.2 inch', '02'));
+                    cc.add(new Option('-1.2 inch', '12'));
+                }
+            },
+            generateCode: function() {
+                const parts = ['FL-202F08R/E50', 'aa', 'bb', 'cc', 'dd'].map(p => p.length > 3 ? p : document.getElementById(`${this.prefix}-${p}`).value);
+                document.getElementById(`${this.prefix}-code`).textContent = parts.join('-');
+                updateLiveSummary();
+            },
+            setupEventListeners: function() {
+                document.getElementById(`${this.prefix}-aa`).addEventListener('change', () => { this.updateDependentOptions(); this.generateCode(); });
+                ['bb','cc','dd'].forEach(p => document.getElementById(`${this.prefix}-${p}`).addEventListener('change', () => this.generateCode()));
+            }
+        };
+
+        allGenerators['FL-263F55/E50'] = {
+            prefix: 'fl263f55e50',
+            fieldsHTML: armorHTML.replace('{prefix}', 'fl263f55e50') + cableHTML('bb', 'BB: Cable Length').replace('{prefix}', 'fl263f55e50'),
+            updateDependentOptions: function() {},
+            generateCode: function() {
+                const parts = ['FL-263F55/E50', document.getElementById('fl263f55e50-a').value, 'M1', '00', '00', document.getElementById('fl263f55e50-bb').value];
+                document.getElementById(`${this.prefix}-code`).textContent = parts.join('-');
+                updateLiveSummary();
+            },
+            setupEventListeners: function() {
+                ['a', 'bb'].forEach(p => document.getElementById(`${this.prefix}-${p}`).addEventListener('change', () => this.generateCode()));
+            }
+        };
+
+        allGenerators['FL-143F28/E50'] = {
+            prefix: 'fl143f28e50',
+            fieldsHTML: armorHTML.replace('{prefix}', 'fl143f28e50') + cableHTML('bb', 'BB: Cable Length').replace('{prefix}', 'fl143f28e50') + `<div class="form-group" style="grid-column: 1 / -1;"><label>Thread Size (Fixed)</label><input type="text" value="4-M6 DEPTH 14" readonly></div>`,
+            updateDependentOptions: function() {},
+            generateCode: function() {
+                const parts = ['FL-143F28/E50', document.getElementById('fl143f28e50-a').value, 'M1', '00', '00', document.getElementById('fl143f28e50-bb').value];
+                document.getElementById(`${this.prefix}-code`).textContent = parts.join('-');
+                updateLiveSummary();
+            },
+            setupEventListeners: function() {
+                ['a', 'bb'].forEach(p => document.getElementById(`${this.prefix}-${p}`).addEventListener('change', () => this.generateCode()));
+            }
+        };
+        
+        allGenerators['FL-602F18/E50'] = {
+            prefix: 'fl602f18e50',
+            fieldsHTML: `${armorHTML.replace('{prefix}', 'fl602f18e50')}
+                <div class="form-group"><label>BB: Thread Size</label><select id="fl602f18e50-bb"><option value="M1">M20X1.5</option><option value="U1">7/8-14 UNF</option></select></div>
+                <div class="form-group"><label>CC: Unthreaded Length</label><select id="fl602f18e50-cc"></select></div>
+                <div class="form-group"><label>DD: Case Length</label><select id="fl602f18e50-dd"></select></div>
+                ${cableHTML('ee', 'EE: Cable Length').replace('{prefix}', 'fl602f18e50')}`,
+            updateDependentOptions: function() {
+                const thread = document.getElementById(`${this.prefix}-bb`).value;
+                const cc = document.getElementById(`${this.prefix}-cc`);
+                const dd = document.getElementById(`${this.prefix}-dd`);
+                cc.innerHTML = ''; dd.innerHTML = '';
+                if (thread === 'M1') {
+                    for (let i = 0; i <= 8; i++) cc.add(new Option(`${i*10} mm`, i.toString().padStart(2, '0')));
+                    for (let i = 4; i <= 12; i++) dd.add(new Option(`${i*10} mm`, i.toString().padStart(2, '0')));
+                } else {
+                    for (let i = 0; i <= 31; i++) cc.add(new Option(`${(i/10).toFixed(1)} inch`, i.toString().padStart(2, '0')));
+                    for (let i = 16; i <= 47; i++) dd.add(new Option(`${(i/10).toFixed(1)} inch`, i.toString().padStart(2, '0')));
+                }
+            },
+            generateCode: function() {
+                const parts = ['FL-602F18/E50', 'a', 'bb', 'cc', 'dd', 'ee'].map(p => p.length > 3 ? p : document.getElementById(`${this.prefix}-${p}`).value);
+                document.getElementById(`${this.prefix}-code`).textContent = parts.join('-');
+                updateLiveSummary();
+            },
+            setupEventListeners: function() {
+                document.getElementById(`${this.prefix}-bb`).addEventListener('change', () => { this.updateDependentOptions(); this.generateCode(); });
+                ['a','cc','dd','ee'].forEach(p => document.getElementById(`${this.prefix}-${p}`).addEventListener('change', () => this.generateCode()));
+            }
+        };
+
+        allGenerators['FL-263F50/E50'] = {
+            prefix: 'fl263f50e50',
+            fieldsHTML: `${armorHTML.replace('{prefix}', 'fl263f50e50')}
+                <div class="form-group"><label>BB: Thread Size</label><select id="fl263f50e50-bb"><option value="M1">M24X1.5</option><option value="U1">1-12 UNF</option></select></div>
+                <div class="form-group"><label>CC: Case Length</label><select id="fl263f50e50-cc"></select></div>
+                ${cableHTML('dd', 'DD: Cable Length').replace('{prefix}', 'fl263f50e50')}`,
+            updateDependentOptions: function() {
+                const thread = document.getElementById(`${this.prefix}-bb`).value;
+                const cc = document.getElementById(`${this.prefix}-cc`);
+                cc.innerHTML = '';
+                if (thread === 'M1') {
+                    for (let i = 4; i <= 10; i++) cc.add(new Option(`${i*10} mm`, i.toString().padStart(2, '0')));
+                } else {
+                    for (let i = 16; i <= 39; i++) cc.add(new Option(`${(i/10).toFixed(1)} inch`, i.toString().padStart(2, '0')));
+                }
+            },
+            generateCode: function() {
+                const parts = ['FL-263F50/E50', 'a', 'bb', '00', 'cc', 'dd'].map(p => p.length > 3 ? p : (p === '00' ? '00' : document.getElementById(`${this.prefix}-${p}`).value));
+                document.getElementById(`${this.prefix}-code`).textContent = parts.join('-');
+                updateLiveSummary();
+            },
+            setupEventListeners: function() {
+                document.getElementById(`${this.prefix}-bb`).addEventListener('change', () => { this.updateDependentOptions(); this.generateCode(); });
+                ['a','cc','dd'].forEach(p => document.getElementById(`${this.prefix}-${p}`).addEventListener('change', () => this.generateCode()));
+            }
+        };
+
+        allGenerators['FL-302F10/E50'] = {
+            prefix: 'fl302f10e50',
+            fieldsHTML: `${armorHTML.replace('{prefix}', 'fl302f10e50')}
+                <div class="form-group"><label>BB: Thread Size</label><select id="fl302f10e50-bb"><option value="M1">M12X1.25</option><option value="U1">1/2-20 UNF</option></select></div>
+                <div class="form-group"><label>CC: Unthreaded Length</label><select id="fl302f10e50-cc"></select></div>
+                <div class="form-group"><label>DD: Case Length</label><select id="fl302f10e50-dd"></select></div>
+                ${cableHTML('ee', 'EE: Cable Length').replace('{prefix}', 'fl302f10e50')}`,
+            updateDependentOptions: function() {
+                const thread = document.getElementById(`${this.prefix}-bb`).value;
+                const cc = document.getElementById(`${this.prefix}-cc`);
+                const dd = document.getElementById(`${this.prefix}-dd`);
+                cc.innerHTML = ''; dd.innerHTML = '';
+                if (thread === 'M1') {
+                    for (let i = 0; i <= 10; i++) cc.add(new Option(`${i*10} mm`, i.toString().padStart(2, '0')));
+                    for (let i = 2; i <= 12; i++) dd.add(new Option(`${i*10} mm`, i.toString().padStart(2, '0')));
+                } else {
+                    for (let i = 0; i <= 40; i++) cc.add(new Option(`${(i/10).toFixed(1)} inch`, i.toString().padStart(2, '0')));
+                    for (let i = 8; i <= 47; i++) dd.add(new Option(`${(i/10).toFixed(1)} inch`, i.toString().padStart(2, '0')));
+                }
+            },
+            generateCode: function() {
+                const parts = ['FL-302F10/E50', 'a', 'bb', 'cc', 'dd', 'ee'].map(p => p.length > 3 ? p : document.getElementById(`${this.prefix}-${p}`).value);
+                document.getElementById(`${this.prefix}-code`).textContent = parts.join('-');
+                updateLiveSummary();
+            },
+            setupEventListeners: function() {
+                document.getElementById(`${this.prefix}-bb`).addEventListener('change', () => { this.updateDependentOptions(); this.generateCode(); });
+                ['a','cc','dd','ee'].forEach(p => document.getElementById(`${this.prefix}-${p}`).addEventListener('change', () => this.generateCode()));
+            }
+        };
+        
+        allGenerators['FL-302F10R/E50'] = {
+            prefix: 'fl302f10re50',
+            fieldsHTML: `
+                <div class="form-group"><label>Thread Size</label><select id="fl302f10re50-aa"><option value="M1">M12X1.25</option><option value="U1">1/2-20 UNF</option></select></div>
+                <div class="form-group"><label>Unthreaded Length</label><select id="fl302f10re50-bb"></select></div>
+                <div class="form-group"><label>Case Length</label><select id="fl302f10re50-cc"></select></div>
+                ${cableHTML('dd', 'Cable Length').replace('{prefix}', 'fl302f10re50')}`,
+            updateDependentOptions: function() {
+                const thread = document.getElementById(`${this.prefix}-aa`).value;
+                const bb = document.getElementById(`${this.prefix}-bb`);
+                const cc = document.getElementById(`${this.prefix}-cc`);
+                bb.innerHTML = ''; cc.innerHTML = '';
+                if (thread === 'M1') {
+                    bb.add(new Option('2mm', 'R2'));
+                    cc.add(new Option('25mm', '03'));
+                } else {
+                    bb.add(new Option('0.1 inch', '01'));
+                    cc.add(new Option('1.0 inch', '10'));
+                }
+            },
+            generateCode: function() {
+                const parts = ['FL-302F10R/E50', 'aa', 'bb', 'cc', 'dd'].map(p => p.length > 3 ? p : document.getElementById(`${this.prefix}-${p}`).value);
+                document.getElementById(`${this.prefix}-code`).textContent = parts.join('-');
+                updateLiveSummary();
+            },
+            setupEventListeners: function() {
+                document.getElementById(`${this.prefix}-aa`).addEventListener('change', () => { this.updateDependentOptions(); this.generateCode(); });
+                ['bb','cc','dd'].forEach(p => document.getElementById(`${this.prefix}-${p}`).addEventListener('change', () => this.generateCode()));
+            }
+        };
+
+        allGenerators['FL-452F11/E50'] = {
+            prefix: 'fl452f11e50',
+            fieldsHTML: `${armorHTML.replace('{prefix}', 'fl452f11e50')}
+                <div class="form-group"><label>Thread Size</label><select id="fl452f11e50-bb"><option value="M1">M14X1.5</option><option value="U1">1/2-20 UNF</option></select></div>
+                <div class="form-group"><label>Unthreaded Length</label><select id="fl452f11e50-cc"></select></div>
+                <div class="form-group"><label>Case Length</label><select id="fl452f11e50-dd"></select></div>
+                ${cableHTML('ee', 'Cable Length').replace('{prefix}', 'fl452f11e50')}`,
+            updateDependentOptions: function() {
+                const thread = document.getElementById(`${this.prefix}-bb`).value;
+                const cc = document.getElementById(`${this.prefix}-cc`);
+                const dd = document.getElementById(`${this.prefix}-dd`);
+                cc.innerHTML = ''; dd.innerHTML = '';
+                if (thread === 'M1') {
+                    for (let i = 0; i <= 10; i++) cc.add(new Option(`${i*10} mm`, i.toString().padStart(2, '0')));
+                    for (let i = 2; i <= 12; i++) dd.add(new Option(`${i*10} mm`, i.toString().padStart(2, '0')));
+                } else {
+                    for (let i = 0; i <= 40; i++) cc.add(new Option(`${(i/10).toFixed(1)} inch`, i.toString().padStart(2, '0')));
+                    for (let i = 8; i <= 47; i++) dd.add(new Option(`${(i/10).toFixed(1)} inch`, i.toString().padStart(2, '0')));
+                }
+            },
+            generateCode: function() {
+                const parts = ['FL-452F11/E50', 'a', 'bb', 'cc', 'dd', 'ee'].map(p => p.length > 3 ? p : document.getElementById(`${this.prefix}-${p}`).value);
+                document.getElementById(`${this.prefix}-code`).textContent = parts.join('-');
+                updateLiveSummary();
+            },
+            setupEventListeners: function() {
+                document.getElementById(`${this.prefix}-bb`).addEventListener('change', () => { this.updateDependentOptions(); this.generateCode(); });
+                ['a','cc','dd','ee'].forEach(p => document.getElementById(`${this.prefix}-${p}`).addEventListener('change', () => this.generateCode()));
+            }
+        };
+
+       // ADD THIS NEW OBJECT
+    allGenerators['WL-142K05/NB1'] = {
+    prefix: 'wl142k05nb1', // New unique prefix
+    // Copied from WL-142K05 and added the readonly NB1 field
+    fieldsHTML: `${armorHTML.replace('{prefix}', 'wl142k05nb1')}
+        <div class="form-group"><label>Thread Size</label><select id="wl142k05nb1-bb">
+            <option value="M1">M8X1</option>
+            <option value="M2">M10X1</option>
+            <option value="U1">1/4-28 UNF-2A</option>
+            <option value="U2">3/8-24 UNF-2A</option>
+        </select></div>
+        <div class="form-group"><label>CC: Unthreaded Length</label><select id="wl142k05nb1-cc"></select></div>
+        <div class="form-group"><label>DD: Case Length</label><select id="wl142k05nb1-dd"></select></div>
+        <div class="form-group"><label>E: Cable Length</label><select id="wl142k05nb1-e">
+            <option value="1">0.5m</option><option value="2">1.0m</option><option value="3">5.0m</option><option value="4">7.0m</option><option value="5">9.0m</option>
+        </select></div>
+        <div class="form-group" style="grid-column: 1 / -1;"><label>Non-incendive NB1</label><input type="text" id="wl142k05nb1-nb1" value="CSA: Class I Div.2, Gr.A, B, C, D, ATEX: EX nA II T4" readonly></div>`,
+
+    // Copied from WL-142K05, uses this.prefix so it's fine
+    updateDependentOptions: function() {
+        const thread = document.getElementById(`${this.prefix}-bb`).value;
+        const cc = document.getElementById(`${this.prefix}-cc`);
+        const dd = document.getElementById(`${this.prefix}-dd`);
+        cc.innerHTML = ''; dd.innerHTML = '';
+        if (thread.startsWith('M')) { // M1 or M2
+            for (let i = 0; i <= 23; i++) cc.add(new Option(`${i*10} mm`, i.toString().padStart(2, '0')));
+            for (let i = 2; i <= 25; i++) dd.add(new Option(`${i*10} mm`, i.toString().padStart(2, '0')));
+        } else { // U1 or U2
+            for (let i = 0; i <= 92; i++) cc.add(new Option(`${(i/10).toFixed(1)} inch`, i.toString().padStart(2, '0')));
+            for (let i = 8; i <= 99; i++) dd.add(new Option(`${(i/10).toFixed(1)} inch`, i.toString().padStart(2, '0')));
+        }
+    },
+    // Copied from WL-142K05, but changed the model name
+    generateCode: function() {
+        const parts = ['WL-142K05/NB1', 'a', 'bb', 'cc', 'dd', 'e'].map(p => p.length > 3 ? p : document.getElementById(`${this.prefix}-${p}`).value);
+        document.getElementById(`${this.prefix}-code`).textContent = `${parts.join('-')}`;
+        updateLiveSummary();
+    },
+    // Copied from WL-142K05, uses this.prefix so it's fine
+    setupEventListeners: function() {
+        document.getElementById(`${this.prefix}-bb`).addEventListener('change', () => { this.updateDependentOptions(); this.generateCode(); });
+        ['a','cc','dd','e'].forEach(p => document.getElementById(`${this.prefix}-${p}`).addEventListener('change', () => this.generateCode()));
+    }
+    };
+        // After defining all generators, build the HTML and set up listeners
+        createGeneratorHTML();
+        
+        navigateToStep(1); 
+        updateLiveSummary(); 
+        
+        document.getElementById("mountPad").addEventListener('change', (e) => { document.getElementById("padOpts").style.display = e.target.checked ? "block" : "none"; updateLiveSummary(); });
+        document.getElementById("mountStud").addEventListener('change', (e) => { document.getElementById("studOpts").style.display = e.target.checked ? "block" : "none"; updateLiveSummary(); });
+    });
+    
+    async function generateExcel() { alert("Excel generation logic would run here, using all collected data."); }
+    function generateFullSummary() {
+        let summary = `CUSTOMER: ${document.getElementById("customer").value || "N/A"}\nPROJECT: ${document.getElementById("project").value || "N/A"}\n\n`;
+        let sensorModel = document.getElementById('summary-sensor-model').innerText;
+        let sensorQty = document.getElementById('summary-sensor-qty').innerText;
+        let sensorCode = document.getElementById('summary-sensor-code').innerText;
+        let sensorDetails = `Model: ${sensorModel}\n   Quantity: ${sensorQty}`;
+        if(sensorCode !== '...' && sensorCode !== 'N/A'){
+             sensorDetails += `\n   Full Code: ${sensorCode}`;
+        }
+
+        summary += `1. SENSOR:\n   ${sensorDetails}\n\n`;
+        summary += `2. ACCESSORIES\n   Ext. Cable: ${document.getElementById('summary-ext-cable').innerText}\n   Mounting Pad: ${document.getElementById('summary-mount-pad').innerText}\n   Mounting Stud: ${document.getElementById('summary-mount-stud').innerText}\n   Junction Box: ${document.getElementById('summary-jb').innerText}\n\n`;
+        summary += `3. MONITORING SYSTEM:\n   ${document.getElementById('summary-monitoring-system').innerText}`;
+        document.getElementById('fullSummaryOutput').innerText = summary;
+    }
+     function toggleSubmit() { /* Placeholder */ alert('Submit logic would run here.'); }
+</script>
+
+</body></html>
+
+
+
+
+
+

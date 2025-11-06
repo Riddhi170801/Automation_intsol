@@ -1,0 +1,847 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.3.0/exceljs.min.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Complete Vibration Sensor Configuration</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* General Body and Layout */
+        body 
+        {
+            font-family: 'Roboto', sans-serif;
+            background: linear-gradient(135deg, #eef2f6 0%, #dae3ed 100%); /* Subtle gradient background */
+            padding: 20px;
+            color: #333;
+            line-height: 1.6;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        .container 
+        {
+            max-width: 850px; /* Slightly wider container */
+            width: 100%;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        h2 
+        {
+            font-family: 'Montserrat', sans-serif; /* Use Montserrat for main heading */
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 35px;
+            font-weight: 700;
+            font-size: 2.5rem; /* Larger main heading */
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1); /* More pronounced shadow */
+            letter-spacing: 0.5px;
+        }
+
+        /* Section Styling */
+        .section 
+        {
+            background: #ffffff;
+            padding: 35px; /* Increased padding */
+            margin-bottom: 30px; /* Increased margin */
+            border-radius: 20px; /* Even more rounded corners */
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12); /* Stronger, softer shadow */
+            border: 1px solid #d0dbe8; /* Slightly darker subtle border */
+            transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out; /* Smooth transition for hover */
+            position: relative; /* For potential pseudo-elements */
+            overflow: hidden; /* Ensures border-radius and shadows are contained */
+        }
+
+        .section:hover 
+        {
+            transform: translateY(-5px); /* More noticeable lift on hover */
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.18);
+        }
+
+        h3 
+        {
+            font-family: 'Montserrat', sans-serif; /* Use Montserrat for subheadings */
+            color: #34495e;
+            margin-top: 0;
+            margin-bottom: 30px; /* Increased margin */
+            font-weight: 600;
+            font-size: 1.8rem; /* Larger subheadings */
+            border-bottom: 4px solid #ff7f50; /* Vibrant accent color underline */
+            padding-bottom: 15px; /* More padding below underline */
+            display: inline-block;
+            line-height: 1.2;
+            text-transform: uppercase; /* Uppercase for emphasis */
+            letter-spacing: 0.8px;
+        }
+
+        /* Form Elements */
+        label 
+        {
+            display: block;
+            margin-top: 25px; /* Increased margin */
+            margin-bottom: 10px; /* Increased margin */
+            font-weight: 500;
+            color: #444; /* Slightly darker label text */
+            font-size: 1.1rem;
+            letter-spacing: 0.2px;
+        }
+
+        select,
+        input[type="number"],
+        input[type="text"] 
+        {
+            width: 100%;
+            padding: 16px; /* More padding */
+            margin-top: 5px;
+            border: 1px solid #cdd4df; /* Slightly darker light grey border */
+            border-radius: 12px; /* More rounded for inputs */
+            box-sizing: border-box;
+            font-size: 1.1rem;
+            color: #333;
+            background-color: #f8faff; /* Very light blue tint */
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05); /* Subtle inner shadow */
+        }
+
+        select:focus,
+        input[type="number"]:focus,
+        input[type="text"]:focus {
+            border-color: #4a90e2; /* Blue focus border */
+            box-shadow: 0 0 0 5px rgba(74, 144, 226, 0.3); /* Stronger, softer blue glow on focus */
+            outline: none;
+        }
+
+        input[type="checkbox"] {
+            margin-right: 15px;
+            transform: scale(1.4); /* Larger checkbox */
+            vertical-align: middle;
+            accent-color: #4a90e2; /* Blue accent for checkbox */
+        }
+
+        /* Button Group */
+        .button-group {
+            display: flex;
+            gap: 20px; /* More space between buttons */
+            margin-top: 35px; /* More margin */
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        button {
+            background: linear-gradient(135deg, #4a90e2 0%, #357bd8 100%); /* Blue gradient button */
+            color: white;
+            padding: 15px 35px; /* More padding */
+            border: none;
+            border-radius: 12px; /* More rounded */
+            cursor: pointer;
+            font-size: 1.1rem;
+            font-weight: 600; /* Bolder text */
+            transition: all 0.3s ease;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2); /* Stronger shadow */
+            min-width: 180px; /* Minimum width for buttons */
+            text-transform: uppercase; /* Uppercase button text */
+            letter-spacing: 0.5px;
+        }
+
+        button:hover:not(:disabled) {
+            background: linear-gradient(135deg, #357bd8 0%, #2a6bbd 100%); /* Darker blue gradient on hover */
+            transform: translateY(-3px) scale(1.02); /* More noticeable lift and slight scale */
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+        }
+
+        button:active:not(:disabled) {
+            transform: translateY(0) scale(1);
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
+        }
+
+        button:disabled {
+            background: #cccccc;
+            cursor: not-allowed;
+            box-shadow: none;
+            transform: none;
+        }
+
+        /* Secondary Button Style (for View Datasheet) */
+        button#viewSensorDatasheetBtn,
+        button#viewExtDatasheetBtn {
+            background: linear-gradient(135deg, #ff7f50 0%, #e06a40 100%); /* Orange gradient */
+            box-shadow: 0 6px 15px rgba(255, 127, 80, 0.3); /* Orange shadow */
+        }
+
+        button#viewSensorDatasheetBtn:hover:not(:disabled),
+        button#viewExtDatasheetBtn:hover:not(:disabled) {
+            background: linear-gradient(135deg, #e06a40 0%, #c25b37 100%);
+            box-shadow: 0 8px 20px rgba(255, 127, 80, 0.4);
+        }
+
+        /* Preformatted Output */
+        pre {
+            background: #fdfefe; /* Lighter background for pre */
+            padding: 25px;
+            border-radius: 15px;
+            border: 2px dashed #aed6f1; /* More prominent dashed border */
+            white-space: pre-wrap;
+            word-break: break-word;
+            margin-top: 30px;
+            font-size: 1rem; /* Slightly larger font */
+            color: #3a506b;
+            max-height: 250px; /* Slightly more height */
+            overflow-y: auto;
+            line-height: 1.6;
+            box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.08); /* More noticeable inner shadow */
+            font-family: 'Roboto Mono', monospace; /* Monospace font for code/summary */
+        }
+
+        /* Specific styling for inline inputs within JB configuration */
+        .jb-input-group {
+            display: flex;
+            align-items: center;
+            gap: 15px; /* More space */
+            flex-wrap: wrap;
+            margin-top: 10px; /* Align with label */
+        }
+
+        .jb-input-group input {
+            width: 90px; /* Slightly wider */
+            padding: 12px; /* Adjusted padding */
+            text-align: center;
+        }
+
+        .jb-input-group span {
+            font-weight: 500;
+            color: #555;
+        }
+
+        /* Status Text */
+        #submitStatus {
+            font-weight: 700; /* Bolder status */
+            margin-left: 20px; /* More margin */
+            font-size: 1.2rem; /* Larger status text */
+            display: flex;
+            align-items: center;
+            letter-spacing: 0.3px;
+        }
+
+        #submitStatus.submitted 
+        {
+            color: #28a745; /* Green for submitted */
+        }
+
+        #submitStatus.not-submitted {
+            color: #dc3545; /* Red for not submitted */
+        }
+
+
+        /* Responsive Adjustments */
+        @media (max-width: 768px) {
+            .container { padding: 15px; }
+            .section { padding: 25px; margin-bottom: 20px; border-radius: 15px; }
+            h2 { font-size: 2rem; margin-bottom: 25px; }
+            h3 { font-size: 1.5rem; margin-bottom: 20px; padding-bottom: 10px; }
+            label { margin-top: 20px; margin-bottom: 8px; font-size: 1rem; }
+            select, input[type="number"], input[type="text"] { padding: 14px; font-size: 1rem; border-radius: 10px; }
+            .button-group { flex-direction: column; gap: 12px; margin-top: 25px; }
+            button { width: 100%; min-width: unset; padding: 14px 25px; font-size: 1rem; border-radius: 10px; }
+            .jb-input-group { flex-direction: row; gap: 10px; }
+            .jb-input-group input { width: calc(50% - 30px); }
+            #submitStatus { margin-top: 15px; margin-left: 0; justify-content: center; width: 100%; font-size: 1rem; }
+        }
+
+        @media (max-width: 480px) {
+            h2 { font-size: 1.6rem; }
+            h3 { font-size: 1.3rem; }
+            .section { padding: 20px; }
+            select, input[type="number"], input[type="text"] { padding: 10px; }
+            button { padding: 12px 20px; }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h2>Complete Vibration Configuration</h2>
+        <div class="section">
+            <h3>Details</h3>
+            <label for="customer">CUSTOMER</label>
+            <input type="text" id="customer">
+            <label for="project">PROJECT</label>
+            <input type="text" id="project">
+            <label for="ref">REFERENCE</label>
+            <input type="text" id="ref">
+        </div>
+
+        <div class="section">
+            <h3>SENSOR CONFIGURATION</h3>
+            <label for="area">Sensor Area:</label>
+            <select id="area" onchange="renderTypeOptions();">
+                <option value="">-- Select Area --</option>
+                <option value="Safe">Safe</option>
+                <option value="Hazardous">Hazardous</option>
+            </select>
+        </div>
+
+        <div id="sensorTypeContainer"></div>
+        <div id="sensorMeasurementContainer"></div>
+        <div id="sensorMakeContainer"></div>
+
+        <div id="extCableSection">
+            <div class="section">
+                <h3>EXTENSION CABLE</h3>
+                <select id="extCable" onchange="toggleExt();">
+                    <option value="NO">NOT REQUIRED</option>
+                    <option value="YES">REQUIRED</option>
+                </select>
+                <div id="extOptions" style="display:none;">
+                    <label for="extLength">LENGTH</label>
+                    <select id="extLength">
+                        <option value="010">10 m</option>
+                        <option value="015">15 m</option>
+                        <option value="020">20 m</option>
+                        <option value="030">30 m</option>
+                    </select>
+                    <div class="button-group">
+                        <button onclick="showExtCode()">Show Extension Cable Code</button>
+                        <button id="viewExtDatasheetBtn" onclick="viewExtDatasheet()" disabled>View Datasheet</button>
+                    </div>
+                    <pre id="extCode">Click "Show Extension Cable Code" to generate.</pre>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h3>MOUNTING ACCESSORIES</h3>
+            <label><input type="checkbox" id="mountPad"> Mounting Pad</label>
+            <div id="padOpts" style="display:none;">
+                <label for="padMoc">MOC</label>
+                <select id="padMoc">
+                    <option value="MS with SS insert (Standard)">MS with SS insert (Standard)</option>
+                    <option value="SS304 (Non Standard)">SS304 (Non Standard)</option>
+                    <option value="SS316L (Non Standard)">SS316L (Non Standard)</option>
+                </select>
+                <div class="button-group">
+                    <button onclick="showMountPadCode()">Show Mounting Pad Code</button>
+                </div>
+                <pre id="padCode">Click "Show Mounting Pad Code" to generate.</pre>
+            </div>
+
+            <label><input type="checkbox" id="mountStud"> Mounting Stud</label>
+            <div id="studOpts" style="display:none;">
+                <label for="threadStd">Thread Details</label>
+                <input type="text" id="threadStd" placeholder="ex. M6 x 1.25">
+                <label for="threadDepth">Depth (mm)</label>
+                <input type="number" id="threadDepth" placeholder="ex. 10" min="1">
+                <label for="studMoc">MOC</label>
+                <select id="studMoc">
+                    <option value="SS304 (Standard)">SS304 (Standard)</option>
+                    <option value="SS316L (Non Standard)">SS316L (Non Standard)</option>
+                </select>
+                <div class="button-group">
+                    <button onclick="showMountStudCode()">Show Mounting Stud Code</button>
+                </div>
+                <pre id="studCode">Click "Show Mounting Stud Code" to generate.</pre>
+            </div>
+        </div>
+
+        <div class="section">
+            <h3>JUNCTION BOX CONFIGURATION</h3>
+            <label for="jbMoc">JB MOC</label>
+            <input type="text" id="jbMoc" placeholder="e.g. FRP">
+            <label>JB CONFIGURATION</label>
+            <div class="jb-input-group">
+                <input type="number" id="jbIn" placeholder="In" min="1" oninput="this.value = Math.abs(this.value)"> <span>in</span>
+                <input type="number" id="jbOut" placeholder="Out" min="1" oninput="this.value = Math.max(0, this.value)"> <span>out</span>
+            </div>
+            <label for="glandMoc">GLAND MOC</label>
+            <input type="text" id="glandMoc" placeholder="e.g. SS304">
+            <div class="button-group">
+                <button onclick="showJBConfig()">Show JB Summary</button>
+            </div>
+            <pre id="jbOutput">Click "Show JB Summary" to generate.</pre>
+        </div>
+        
+        <div class="section">
+            <h3>MONITORING SYSTEM</h3>
+            <label for="monitoringType">System Type</label>
+            <select id="monitoringType" onchange="renderMonitoringMake()">
+                <option value="">-- Not Required --</option>
+                <option value="Standalone">Standalone</option>
+                <option value="API">API</option>
+            </select>
+            <div id="monitoringMakeContainer"></div>
+            <div id="monitoringModelContainer"></div>
+        </div>
+
+
+        <div class="section">
+            <h3>COMPLETE CONFIGURATION SUMMARY</h3>
+            <div class="button-group">
+                <button onclick="generateFullSummary()">Generate Full Summary</button>
+            </div>
+            <pre id="fullSummaryOutput">Click "Generate Full Summary" to see your complete configuration.</pre>
+        </div>
+
+        <div class="button-group" style="margin-top: 20px;">
+            <button onclick="if (validateDetails()) generateExcel();">Generate Excel</button>
+            <button id="submitBtn" onclick="toggleSubmit()" data-submitted="false">Submit</button>
+            <span id="submitStatus" class="not-submitted">❌ Not Submitted</span>
+        </div>
+    </div>
+
+<script>
+    const DATASHEETS = {
+        'FM-EXTC': 'https://res.cloudinary.com/dzo1am1z1/image/upload/v1752062409/FM-EXTC-SS-010-1_beg2p0.png',
+        'FM-LPS': 'https://res.cloudinary.com/dzo1am1z1/image/upload/v1752062400/FM-LPS-420_series_spec_RevA-1_lf1zye.png',
+        'CBT-420': 'https://res.cloudinary.com/dzo1am1z1/image/upload/v1752062361/CBT-420-1_tofuxr.png',
+        'Wilcoxon': 'https://res.cloudinary.com/dzo1am1z1/image/upload/v1753964287/Wilcoxon_xf1naq.pdf',
+        'Monitran': 'https://res.cloudinary.com/dzo1am1z1/image/upload/v1753964244/Monitran_mjjfd1.pdf'
+    };
+
+    function validateInput(elementId, outputElementId, message = "No data selected / Invalid Format") {
+        const element = document.getElementById(elementId);
+        const outputElement = document.getElementById(outputElementId);
+        if (!element || !outputElement) return false;
+        let isValid = true;
+        let value = element.value.trim();
+        if (element.type === 'number') {
+            if (value === '' || isNaN(value) || parseFloat(value) < 0 || (element.id === 'sensorQty' && parseFloat(value) < 1)) {
+                isValid = false;
+            }
+        } else if (element.tagName === 'SELECT') {
+            if (value === '') {
+                isValid = false;
+            }
+        } else {
+            if (value === '') {
+                isValid = false;
+            }
+        }
+        if (!isValid) {
+            outputElement.innerText = message;
+            return false;
+        }
+        return true;
+    }
+    
+    function renderTypeOptions() {
+        const area = document.getElementById('area').value;
+        const typeContainer = document.getElementById('sensorTypeContainer');
+        document.getElementById('sensorMeasurementContainer').innerHTML = '';
+        document.getElementById('sensorMakeContainer').innerHTML = '';
+        if (area) {
+            typeContainer.innerHTML = `
+            <div class="section">
+                <h3>SENSOR TYPE</h3>
+                <label for="sensorType">Type:</label>
+                <select id="sensorType" onchange="renderMeasurementOptions()">
+                <option value="">-- Select Type --</option>
+                <option value="Contact">Contact</option>
+                <option value="Non-Contact">Non-Contact</option>
+                </select>
+            </div>`;
+        } else {
+            typeContainer.innerHTML = '';
+        }
+    }
+
+    function renderMeasurementOptions() {
+        const area = document.getElementById('area').value;
+        const type = document.getElementById('sensorType').value;
+        const measurementContainer = document.getElementById('sensorMeasurementContainer');
+        document.getElementById('sensorMakeContainer').innerHTML = '';
+        let html = '';
+        if (!type) {
+            measurementContainer.innerHTML = '';
+            return;
+        }
+        html += '<div class="section"><h3>MEASUREMENT</h3>';
+        if (area === 'Safe' && type === 'Contact') {
+            html += `<label for="measurementType">Measurement Type:</label>
+            <select id="measurementType" onchange="renderMakeOptions()"><option value="">-- Select --</option><option>Acceleration</option><option>Velocity</option><option>Loop Powered</option></select>`;
+        } 
+        else if (area === 'Safe' && type === 'Non-Contact') {
+            html += `<label for="measurementType">Measurement Type:</label>
+            <select id="measurementType" onchange="renderMakeOptions()"><option value="">-- Select --</option><option>Eddy Current Sensor</option><option>Loop Powered Eddy Current Sensor</option></select>`;
+        }
+        else if (area === 'Hazardous' && type === 'Contact') {
+            html += `<label for="measurementType">Measurement Type:</label>
+            <select id="measurementType" onchange="renderMakeOptions()"><option value="">-- Select --</option><option>Acceleration</option><option>Velocity</option><option>Loop Powered</option></select>`;
+        }
+        else if (area === 'Hazardous' && type === 'Non-Contact') {
+            html += `<label for="measurementType">Measurement Type:</label>
+            <select id="measurementType" onchange="renderMakeOptions()"><option value="">-- Select --</option><option>Eddy Current</option><option>Loop Powered Eddy Current</option></select>`;
+        }
+        html += '</div>';
+        measurementContainer.innerHTML = html;
+        toggleExt();
+    }
+    
+    function renderMakeOptions() {
+        const area = document.getElementById('area').value;
+        const type = document.getElementById('sensorType').value;
+        const measurement = document.getElementById('measurementType').value;
+        const makeContainer = document.getElementById('sensorMakeContainer');
+        makeContainer.innerHTML = '';
+        if (!measurement) return;
+        let html = '';
+        if (area === 'Safe' && type === 'Contact' && measurement === 'Loop Powered') {
+            html = `<div class="section"><h3>SENSOR</h3><label for="make">MAKE</label><select id="make" onchange="updateOptions()"><option value="Shinkawa">Shinkawa (CBT-420 Series)</option><option value="Forbes Marshall">Forbes Marshall (FM LPS-420 Series)</option></select><label for="sensorQty">QUANTITY (No. of Sensors)</label><input type="number" id="sensorQty" value="1" min="1"><label for="range">RANGE</label><select id="range"></select><label for="measurement">MEASUREMENT UNIT</label><select id="measurement"><option value="P">PEAK</option><option value="R">RMS</option></select><div id="shinkawaOpts" style="display:none;"><label for="yy">CABLE/ CONNECTOR</label><select id="yy"><option value="50">2 Pin MS</option></select></div><div class="button-group"><button onclick="showSafeLoopPoweredCode()">Show Sensor Full Code</button><button id="viewSensorDatasheetBtn" onclick="viewSensorDatasheet()" disabled>View Datasheet</button></div><pre id="sensorCode">Click "Show Sensor Full Code" to generate.</pre></div>`;
+            makeContainer.innerHTML = html;
+            updateOptions(); 
+        }
+        else if (area === 'Hazardous' && type === 'Contact' && measurement === 'Loop Powered') {
+            html = `<div class="section">
+                <h3>MAKE</h3>
+                <select id="hazMake" onchange="renderHazardousDetails();">
+                <option value="">-- Select Make --</option>
+                <option value="Monitran">Monitran</option>
+                <option value="Wilcoxon">Wilcoxon</option>
+                </select>
+                </div>
+                <div id="hazardousDetails"></div>`;
+            makeContainer.innerHTML = html;
+        }
+        else if (area === 'Safe' && type === 'Contact' && (measurement === 'Acceleration' || measurement === 'Velocity')) {
+            let makeOptions = '';
+            if (measurement === 'Acceleration') {
+                makeOptions = `<option value="Forbes Marshall">Forbes Marshall (FM-ACCL)</option>
+                <option value="Shinkawa">Shinkawa (CB-101)</option>`;
+            } else {
+                makeOptions = `<option value="Forbes Marshall">Forbes Marshall (FM-VEL004B)</option>
+                <option value="Shinkawa">Shinkawa (CV Series)</option>`;
+            }
+            html = `<div class="section">
+                <h3>SENSOR DETAILS</h3>
+                <label for="make">MAKE</label>
+                <select id="make">${makeOptions}</select>
+                <label for="sensorQty">QUANTITY</label>
+                <input type="number" id="sensorQty" value="1" min="1">
+                <div class="button-group"><button onclick="showGenericCode()">Show Sensor Details</button></div>
+                <pre id="sensorCode">Click button to generate.</pre>
+                </div>`;
+            makeContainer.innerHTML = html;
+        }
+        else {
+            let modelName = '';
+            if (area === 'Safe' && type === 'Non-Contact') modelName = (measurement === 'Eddy Current') ? 'FL' : 'WL';
+            else if (area === 'Hazardous' && type === 'Contact') modelName = (measurement === 'Acceleration') ? 'Shinkawa CA Series' : 'Shinkawa CV Series';
+            else if (area === 'Hazardous' && type === 'Non-Contact') modelName = (measurement === 'Eddy Current') ? 'FL/E50' : 'WL/WB1';
+            html = `<div class="section"><h3>SENSOR DETAILS</h3><label>MODEL</label><input type="text" id="sensorModel" value="${modelName}" readonly>
+                <label for="sensorQty">QUANTITY</label>
+                <input type="number" id="sensorQty" value="1" min="1"><div class="button-group">
+                    <button onclick="showGenericCode()">Show Sensor Details</button></div>
+                    <pre id="sensorCode">Click button to generate.</pre></div>`;
+            makeContainer.innerHTML = html;
+        }
+        toggleExt();
+    }
+
+    function renderHazardousDetails() {
+        const make = document.getElementById('hazMake').value;
+        const detailDiv = document.getElementById('hazardousDetails');
+        let html = '';
+        if (make === 'Monitran') {
+            html = `<div class="section">
+                <label>QUANTITY</label>
+                <input type="number" id="sensorQty" value="1" min="1"/><label>MEASUREMENT UNIT:</label>
+                <input type="text" value="RMS" readonly /><label>RANGE</label>
+                <select id="MonitranRange"><option value="10">0-10 mm/s</option>
+                    <option value="20">0-20 mm/s</option><option value="25">0-25 mm/s</option>
+                    <option value="50">0-50 mm/s</option><option value="100">0-100 mm/s</option></select>
+                    <label>INTEGRAL CABLE LENGTH (m):</label><select id="MonitranCable"><option value="5">5</option>
+                    <option value="10">10</option><option value="15">15</option>
+                    <option value="20">20</option></select><br></br><div class="button-group">
+                    <button onclick="generateMonitranCode()">Show Sensor Full Code</button>
+                    <button id="viewSensorDatasheetBtn" onclick="viewSensorDatasheet()" >View Datasheet</button></div>
+                    <pre id="MonitranCode">Click "Show Full Code" to generate.</pre></div>`;
+        } else if (make === 'Wilcoxon') {
+            html = `<div class="section"><label>QUANTITY</label>
+                <input type="number" id="sensorQty" value="1" min="1"/><label>RANGE</label>
+                <select id="wilcoxonRange"><option value="05">0.5 ips (12.8 mm/sec)</option>
+                <option value="10">1.0 ips (25.4 mm/sec)</option><option value="20">2.0 ips (50.8 mm/sec)</option>
+                <option value="30">3.0 ips (76.2 mm/sec)</option>
+                <option value="50">5.0 ips (127 mm/sec)</option></select>
+                <label>MEASUREMENT UNIT</label><select id="wilcoxonMU"><option value="P">Peak</option>
+                <option value="R">RMS</option></select><br></br><div class="button-group">
+                <button onclick="generateWilcoxonCode()">Show Sensor Full Code</button>
+                <button id="viewSensorDatasheetBtn" onclick="viewSensorDatasheet()">View Datasheet</button></div>
+                <pre id="wilcoxonCode">Click "Show Full Code" to generate</pre>
+                </div>`;
+        }
+        detailDiv.innerHTML = html;
+        toggleExt();
+    }
+    
+    function generateMonitranCode() {
+        const range = document.getElementById('MonitranRange').value;
+        const cable = document.getElementById('MonitranCable').value;
+        const out = document.getElementById('MonitranCode');
+        const qty = document.getElementById('sensorQty').value;
+        if (!range || !cable || !qty || qty < 1) { out.innerText = 'Please ensure quantity is valid and all fields are filled.'; return; }
+        out.innerHTML = `Full Code: <strong>MTN/2285IC-${range}</strong><br>Quantity: ${qty}<br>Monitran Sensor-Intrinsically safe 4-20 mA velocity transducer ATEX & IECEx Group II approved with integral ${cable}m Cable, 1/4'' UNF Female mounting`;
+    }
+
+    function generateWilcoxonCode() {
+        const yy = document.getElementById('wilcoxonRange').value;
+        const x = document.getElementById('wilcoxonMU').value;
+        const out = document.getElementById('wilcoxonCode');
+        const qty = document.getElementById('sensorQty').value;
+        if (!yy || !x || !qty || qty < 1) { out.innerText = 'Please ensure quantity is valid and all fields are filled.'; return; }
+        out.innerHTML = `Full Code: <strong>PC420V${x}-${yy}-IS</strong><br>Quantity: ${qty}<br>2 wire loop powered ATEX sensors, Ex ia IIC T4 Ga certified, 2 pin, MIL-C-5015 style output connector`;
+    }
+
+    function showGenericCode() {
+        const sensorCodePre = document.getElementById("sensorCode");
+        if (!validateInput('sensorQty', 'sensorCode')) return;
+        const qty = document.getElementById("sensorQty").value;
+        let model = '';
+        const modelInput = document.getElementById("sensorModel");
+        const makeSelect = document.getElementById("make");
+        if (modelInput) { model = modelInput.value; } 
+        else if (makeSelect) {
+            const selectedOption = makeSelect.options[makeSelect.selectedIndex].text;
+            const match = selectedOption.match(/\(([^)]+)\)/);
+            if (match) { model = match[1]; } 
+            else { model = selectedOption; }
+        }
+        if (model) { sensorCodePre.innerText = `Model: ${model}\nQuantity: ${qty}`; } 
+        else { sensorCodePre.innerText = "Could not generate code."; }
+    }
+    
+    function updateOptions() {
+        let make = document.getElementById("make").value;
+        let range = document.getElementById("range");
+        range.innerHTML = "";
+        document.getElementById("shinkawaOpts").style.display = make === "Shinkawa" ? "block" : "none";
+        let ranges = make === "Shinkawa" ? [10, 20, 25, 50, 100] : [10, 15, 20, 25, 30, 40, 50];
+        ranges.forEach(v => { let opt = document.createElement("option"); opt.value = v; opt.text = `0-${v} mm/sec`; range.appendChild(opt); });
+    }
+    
+    function validateDetails() {
+        const customer = document.getElementById("customer").value.trim();
+        const project = document.getElementById("project").value.trim();
+        const ref = document.getElementById("ref").value.trim();
+        if (!customer) { alert("Please enter CUSTOMER name."); return false; }
+        if (!project) { alert("Please enter PROJECT name."); return false; }
+        if (!ref) { alert("Please enter REFERENCE."); return false; }
+        return true;
+    }
+
+    // --- MONITORING SYSTEM FUNCTIONS ---
+    function renderMonitoringMake() {
+        const type = document.getElementById('monitoringType').value;
+        const makeContainer = document.getElementById('monitoringMakeContainer');
+        document.getElementById('monitoringModelContainer').innerHTML = ''; 
+        if (type) {
+            makeContainer.innerHTML = `
+                <label for="monitoringMake">Make</label>
+                <select id="monitoringMake" onchange="renderMonitoringModel()">
+                    <option value="">-- Select Make --</option>
+                    <option value="Shinkawa">Shinkawa</option>
+                    <option value="FM">Forbes Marshall (FM)</option>
+                </select>`;
+        } else {
+            makeContainer.innerHTML = '';
+        }
+    }
+
+    function renderMonitoringModel() {
+        const type = document.getElementById('monitoringType').value;
+        const make = document.getElementById('monitoringMake').value;
+        const modelContainer = document.getElementById('monitoringModelContainer');
+        let optionsHTML = '';
+        if (type === 'Standalone' && make === 'Shinkawa') optionsHTML = '<option value="VM 21">VM 21</option><option value="VM 25">VM 25</option>';
+        else if (type === 'Standalone' && make === 'FM') optionsHTML = '<option value="FM Vibtrans II">FM Vibtrans II</option>';
+        else if (type === 'API' && make === 'Shinkawa') optionsHTML = '<option value="VM 5">VM 5</option><option value="VM 7">VM 7</option>';
+        else if (type === 'API' && make === 'FM') optionsHTML = '<option value="Vibtrans R">Vibtrans R</option>';
+
+        if (optionsHTML) {
+            modelContainer.innerHTML = `
+                <label for="monitoringModel">Model</label>
+                <select id="monitoringModel"><option value="">-- Select Model --</option>${optionsHTML}</select>`;
+        } else {
+            modelContainer.innerHTML = '';
+        }
+    }
+
+    async function generateExcel() {
+        const usdToInr = 86.37, yenToInr = 0.55, GBPToInr = 118;
+        const customer = document.getElementById("customer")?.value.trim() || "", project = document.getElementById("project")?.value.trim() || "", ref = document.getElementById("ref")?.value.trim() || "";
+        const area = document.getElementById("area")?.value || "", type = document.getElementById("sensorType")?.value || "", measurement = document.getElementById("measurementType")?.value || "";
+        const qty = parseInt(document.getElementById("sensorQty")?.value) || 0;
+        const extRequired = document.getElementById("extCable")?.value === "YES", extLen = document.getElementById("extLength")?.value || "";
+        const padRequired = document.getElementById("mountPad")?.checked, padMoc = document.getElementById("padMoc")?.value || "";
+        const studRequired = document.getElementById("mountStud")?.checked, studMoc = document.getElementById("studMoc")?.value || "", threadInfo = document.getElementById("threadStd")?.value || "", depthInfo = document.getElementById("threadDepth")?.value ? `${document.getElementById("threadDepth").value}mm` : "";
+        const jbMoc = document.getElementById("jbMoc")?.value || "", jbIn = parseInt(document.getElementById("jbIn")?.value) || 0, jbOut = parseInt(document.getElementById("jbOut")?.value) || 0, glandMoc = document.getElementById("glandMoc")?.value || "";
+        const jbQty = (jbIn && qty) ? Math.ceil(qty / jbIn) : "", totalTerminals = jbIn ? Math.ceil(jbIn * 3 * 1.2) : "", totalGlands = (jbIn + jbOut) || "";
+        const extPriceMap = {"010": 1599.72, "015": 2115, "020": 2595, "030": 3575}, padPriceMap = {"MS with SS insert (Standard)": 90, "SS304 (Non Standard)": 350, "SS316L (Non Standard)": 500, "Hazardous": 150}, studPriceMap = {"SS304 (Standard)": 140, "SS316L (Non Standard)": 300, "Hazardous": 200};
+        let srNo = 1, data = [], totalTPINR = 0, showPriceColumns = false;
+        const addRow = (sr, name, desc, code, quantity, upInr = "", tpInr = "", upOther = "") => {
+            if (tpInr && !isNaN(tpInr)) totalTPINR += Number(tpInr);
+            const row = [sr, name, desc, code, quantity];
+            if (showPriceColumns) row.push(upInr, tpInr, upOther);
+            data.push(row);
+        };
+        let headers = ["Sr no.", "Accessories", "Description", "Code", "Quantity"];
+        if (area === 'Safe' && type === 'Contact' && measurement === 'Loop Powered') {
+            showPriceColumns = true;
+            const make = document.getElementById("make")?.value || "", rangeValue = document.getElementById("range")?.value || "", paddedRange = rangeValue.toString().padStart(3, '0'), yy = document.getElementById("yy")?.value || "", measure = document.getElementById("measurement")?.value || "", measureText = measure === "P" ? "Peak" : "RMS";
+            if (make === "Shinkawa") { headers.push("UP INR", "TP INR", "UP in YEN"); const upYen = 18100, upInr = (upYen * yenToInr * 1.03 * 1.075).toFixed(2), tpInr = (qty * upInr).toFixed(2); addRow(srNo++, "Sensor (Shinkawa)", `CBT-420 Series Loop powered sensor, range 0-${rangeValue} mm/sec ${measureText}`, `CBT-420-${paddedRange}-${yy}-01`, qty, upInr, tpInr, upYen); } 
+            else if (make === "Forbes Marshall") { headers.push("UP INR", "TP INR", "UP USD"); const upUsd = 99, upInr = (upUsd * usdToInr * 1.03 * 1.075).toFixed(2), tpInr = (qty * upInr).toFixed(2); addRow(srNo++, "Sensor (FM-LPS)", `FM-LPS Loop powered sensor, range 0-${rangeValue} mm/sec ${measureText}`, `FM-LPS-420-${rangeValue}B-${measure}-W`, qty, upInr, tpInr, upUsd); }
+        } else if (area === 'Hazardous' && type === 'Contact' && measurement === 'Loop Powered') {
+            showPriceColumns = true;
+            const hazMake = document.getElementById("hazMake")?.value || "";
+            if (hazMake === "Monitran") { headers.push("UP INR", "TP INR", "UP GBP"); const range = document.getElementById('MonitranRange')?.value || "", cable = document.getElementById('MonitranCable')?.value || "", priceMap = {"5": 129, "10": 135.5, "15": 142, "20": 148.5}, upGBP = priceMap[cable] || 0, upInr = (upGBP * GBPToInr * 1.03 * 1.075).toFixed(2), tpInr = (qty * upInr).toFixed(2); addRow(srNo++, "Sensor (Monitran)", `Intrinsically safe 4-20 mA velocity transducer with integral ${cable}m Cable`, `MTN/2285IC-${range}`, qty, upInr, tpInr, upGBP); } 
+            else if (hazMake === "Wilcoxon") { headers.push("UP INR", "TP INR", "UP USD"); const wyy = document.getElementById('wilcoxonRange')?.value || "", x = document.getElementById('wilcoxonMU')?.value || "", upUsd = 289, upInr = (upUsd * usdToInr * 1.03 * 1.075).toFixed(2), tpInr = (qty * upInr).toFixed(2); addRow(srNo++, "Sensor (Wilcoxon)", `2 wire loop powered ATEX sensor, Ex ia IIC T4 Ga certified`, `PC420V${x}-${wyy}-IS`, qty, upInr, tpInr, upUsd); }
+        } else {
+            let model = document.getElementById("sensorModel")?.value || "", make = '';
+            if (!model) { const makeSelect = document.getElementById("make"), selectedOption = makeSelect.options[makeSelect.selectedIndex]; make = selectedOption.value; const match = selectedOption.text.match(/\(([^)]+)\)/); if (match) model = match[1]; }
+            let desc = `Sensor Model: ${model}`; if (make) desc += `, Make: ${make}`; addRow(srNo++, "Sensor", desc, model, qty);
+        }
+        let extUpInr = "", extTpInr = ""; if (extRequired && extLen && extPriceMap[extLen]) { extUpInr = extPriceMap[extLen]; extTpInr = (qty * extUpInr).toFixed(2); addRow(srNo++, "Extension Cable", `FM Standard ${parseInt(extLen)} meter Extension cable with Flexible SS conduit`, `FM-EXTC-SS-${extLen}`, qty, extUpInr, extTpInr); } else { addRow(srNo++, "Extension Cable", "Not Required", "", ""); }
+        let padUpInr = "", padTpInr = ""; if (padRequired) { if (area === "Hazardous") padUpInr = padPriceMap["Hazardous"]; else if (padMoc && padPriceMap[padMoc]) padUpInr = padPriceMap[padMoc]; if (padUpInr) padTpInr = (qty * padUpInr).toFixed(2); addRow(srNo++, "Mounting Pad", `FM std mounting pad 30x30x15, MOC: ${padMoc}`, `FM-MP-001`, qty, padUpInr, padTpInr); } else { addRow(srNo++, "Mounting Pad", "Not Required", "", ""); }
+        let studUpInr = "", studTpInr = ""; if (studRequired) { if (area === "Hazardous") studUpInr = studPriceMap["Hazardous"]; else if (studMoc && studPriceMap[studMoc]) studUpInr = studPriceMap[studMoc]; if (studUpInr) studTpInr = (qty * studUpInr).toFixed(2); addRow(srNo++, "Mounting Stud", `Mounting Stud with MOC: ${studMoc}, Thread: ${threadInfo}, Depth: ${depthInfo}`, `FM-MS-001`, qty, studUpInr, studTpInr); } else { addRow(srNo++, "Mounting Stud", "Not Required", "", ""); }
+        if(showPriceColumns) { const finalPrice = totalTPINR / 0.4 / 0.8; const priceRow = ["", "", "", "Total Package Price in Ex works INR", finalPrice.toFixed(2)]; priceRow.push("", "", ""); data.push(priceRow); }
+        const jbDesc = (jbMoc || jbIn || jbOut) ? `Junction Box: ${jbMoc}, ${jbIn} in ${jbOut} out\nTerminals (incl. 20% spares): ${totalTerminals}\nGlands: ${totalGlands}\nGland MOC: ${glandMoc}` : "Not Required"; addRow(srNo++, "Junction Box", jbDesc, "", jbQty);
+        const jbPriceRow = ["", "", "", "Junction box Price", "Please Contact Division"]; if (showPriceColumns) jbPriceRow.push("", "", ""); data.push(jbPriceRow);
+        
+        const monitoringType = document.getElementById("monitoringType")?.value;
+        if (monitoringType) { const monitoringMake = document.getElementById("monitoringMake")?.value || "", monitoringModel = document.getElementById("monitoringModel")?.value || ""; const desc = `System Type: ${monitoringType}, Make: ${monitoringMake}`; addRow(srNo++, "Monitoring System", desc, monitoringModel, 1); }
+        else { addRow(srNo++, "Monitoring System", "Not Required", "", ""); }
+        
+        const workbook = new ExcelJS.Workbook(); const worksheet = workbook.addWorksheet("Summary");
+        worksheet.addRow(["Customer:", customer]); worksheet.addRow(["Project:", project]); worksheet.addRow(["Reference:", ref]); worksheet.addRow([]); worksheet.addRow(["A. MAIN SCOPE OF SUPPLY"]); worksheet.addRow(headers); data.forEach(row => worksheet.addRow(row));
+        worksheet.columns.forEach(col => { let maxLength = 0; col.eachCell({ includeEmpty: true }, cell => { const len = cell.value ? cell.value.toString().length : 10; if (len > maxLength) maxLength = len; }); col.width = maxLength + 2; });
+        const buffer = await workbook.xlsx.writeBuffer(); const blob = new Blob([buffer], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+        const link = document.createElement("a"); link.href = URL.createObjectURL(blob); link.download = "Sensor_Configuration_Summary.xlsx"; document.body.appendChild(link); link.click(); document.body.removeChild(link);
+    }
+
+    function toggleExt() {
+        const extCableSection = document.getElementById("extCableSection"), extOptionsDiv = document.getElementById("extOptions"), extCableSelect = document.getElementById("extCable");
+        if (!extCableSection || !extCableSelect || !extOptionsDiv) return;
+        const area = document.getElementById("area")?.value, type = document.getElementById("sensorType")?.value, measurement = document.getElementById("measurementType")?.value, hazMake = document.getElementById("hazMake")?.value;
+        if (area === "Hazardous" && type === "Contact" && measurement === "Loop Powered" && hazMake === "Monitran") { extCableSection.style.display = "none"; } else { extCableSection.style.display = "block"; }
+        const isRequired = extCableSelect.value === "YES"; extOptionsDiv.style.display = isRequired ? "block" : "none";
+        if (!isRequired) { document.getElementById("extCode").innerText = 'Click "Show Extension Cable Code" to generate.'; document.getElementById("viewExtDatasheetBtn").disabled = true; }
+    }
+    
+    function showSafeLoopPoweredCode() {
+        const sensorCodePre = document.getElementById("sensorCode"), viewSensorDatasheetBtn = document.getElementById("viewSensorDatasheetBtn"); viewSensorDatasheetBtn.disabled = true;
+        if (!validateInput('sensorQty', 'sensorCode')) return;
+        const qty = parseInt(document.getElementById("sensorQty").value), make = document.getElementById("make").value, range = document.getElementById("range").value, measure = document.getElementById("measurement").value, measureText = measure === "P" ? "PEAK" : "RMS";
+        if (!validateInput('make', 'sensorCode') || !validateInput('range', 'sensorCode') || !validateInput('measurement', 'sensorCode')) return;
+        let out = "";
+        if (make === "Shinkawa") {
+            const yy = document.getElementById("yy").value; if (!validateInput('yy', 'sensorCode')) return;
+            const paddedRange = range === "100" ? "100" : range.padStart(3, '0');
+            out += `Full Code: CBT-420-${paddedRange}-${yy}-01\nQuantity: ${qty}\nRange: 0-${range} mm/sec (${measureText})\n\nCBT-420 Series Loop powered sensor with range 0-${range} mm/sec ${measureText}, output 4-20 mA for PLC/DCS connectivity, with 2 pin MS connector.`;
+        } else {
+            out += `Full Code: FM-LPS-420-${range}B-${measure}-W\nQuantity: ${qty}\nRange: 0-${range} mm/sec (${measureText})\n\nFM-LPS Loop powered sensor with range 0-${range} mm/sec ${measureText}, output 4-20 mA for PLC/DCS integration.`;
+        }
+        sensorCodePre.innerText = out; viewSensorDatasheetBtn.disabled = false;
+    }
+
+    function viewSensorDatasheet() {
+        let datasheetUrl = '';
+        const area = document.getElementById("area")?.value, type = document.getElementById("sensorType")?.value, measurement = document.getElementById("measurementType")?.value;
+        if (area === "Safe" && type === "Contact" && measurement === "Loop Powered") {
+            const make = document.getElementById("make")?.value;
+            if (make === "Shinkawa") datasheetUrl = DATASHEETS['CBT-420'];
+            else if (make === "Forbes Marshall") datasheetUrl = DATASHEETS['FM-LPS'];
+        } else if (area === "Hazardous" && type === "Contact" && measurement === "Loop Powered") {
+            const hazMake = document.getElementById("hazMake")?.value;
+            if (hazMake === "Wilcoxon") datasheetUrl = DATASHEETS['Wilcoxon'];
+            else if (hazMake === "Monitran") datasheetUrl = DATASHEETS['Monitran'];
+        }
+        if (datasheetUrl) { window.open(datasheetUrl, '_blank'); } 
+        else { alert('Datasheet not available for the selected configuration.'); }
+    }
+
+    function showExtCode() {
+        const extLength = document.getElementById("extLength").value, extCode = document.getElementById("extCode"), datasheetBtn = document.getElementById("viewExtDatasheetBtn");
+        if (extLength && extCode) { extCode.innerHTML = `Cable Code: <strong>FM-EXTC-SS-${extLength}</strong><br>FM Standard ${extLength} meter Extension Cable with Flexible SS conduit`; datasheetBtn.disabled = false; } 
+        else { extCode.innerText = "Extension cable length not selected."; datasheetBtn.disabled = true; }
+    }
+
+    function viewExtDatasheet() { if (DATASHEETS['FM-EXTC']) { window.open(DATASHEETS['FM-EXTC'], '_blank'); } else { alert('Datasheet not available for extension cable.'); } }
+    function showMountPadCode() {
+        const padCodePre = document.getElementById("padCode"), padMoc = document.getElementById("padMoc").value;
+        if (!padMoc) { padCodePre.innerText = "Please select MOC for Mounting Pad."; return; }
+        padCodePre.innerText = `FM-MP-001\nFM std mounting pad 30x30x15, MOC: ${padMoc}`;
+    }
+
+    function showMountStudCode() {
+        const studCodePre = document.getElementById("studCode"), threadStd = document.getElementById("threadStd").value.trim(), threadDepth = document.getElementById("threadDepth").value.trim(), studMoc = document.getElementById("studMoc").value;
+        if (!studMoc) { studCodePre.innerText = "Please select MOC for Mounting Stud."; return; }
+        const threadInfo = threadStd || "(not specified)", depthInfo = threadDepth ? `${threadDepth} mm` : "(not specified)";
+        studCodePre.innerText = `FM-MS-001\nMounting Stud with MOC: ${studMoc}, Thread details: ${threadInfo}, Depth: ${depthInfo}`;
+    }
+
+    function showJBConfig() {
+        const jbOutputPre = document.getElementById("jbOutput");
+        if (!validateInput('jbMoc', 'jbOutput', 'JB MOC cannot be empty.') || !validateInput('glandMoc', 'jbOutput', 'Gland MOC cannot be empty.') || !validateInput('jbIn', 'jbOutput', 'Inlets must be a valid positive number.') || !validateInput('jbOut', 'jbOutput', 'Outlets must be a valid non-negative number.')) { return; }
+        const qty = parseInt(document.getElementById("sensorQty")?.value) || 1, jbMoc = document.getElementById("jbMoc").value, jbIn = parseInt(document.getElementById("jbIn").value), jbOut = parseInt(document.getElementById("jbOut").value), glandMoc = document.getElementById("glandMoc").value;
+        let terminals = Math.ceil((jbIn * 3) + (jbIn * 3 * 0.2)), glands = jbIn + jbOut, jbQty = Math.ceil(qty / jbIn); 
+        jbOutputPre.innerText = `Junction Box: ${jbMoc}, ${jbIn} in ${jbOut} out\nTerminals(incl. 20% Spares): ${terminals}\nGlands: ${glands}\nGland MOC: ${glandMoc}\nJB Quantity: ${jbQty}`;
+    }
+
+    function generateFullSummary() {
+        const customer = document.getElementById("customer")?.value.trim() || "(not specified)", project = document.getElementById("project")?.value.trim() || "(not specified)", ref = document.getElementById("ref")?.value.trim() || "(not specified)";
+        let summaryText = `CUSTOMER : ${customer}\nPROJECT  : ${project}\nREFERENCE: ${ref}\n\n`;
+        summaryText += "1. Sensor Configuration:\n";
+        let sensorDetailsText = "   - Sensor details not generated or invalid.";
+        const sensorCodePre = document.getElementById("sensorCode"), monitranCodePre = document.getElementById("MonitranCode"), wilcoxonCodePre = document.getElementById("wilcoxonCode");
+        if (sensorCodePre && !sensorCodePre.innerText.includes('generate')) { sensorDetailsText = `   ${sensorCodePre.innerText.replace(/\n/g, '\n   ')}`; } 
+        else if (monitranCodePre && !monitranCodePre.innerText.includes('generate')) { sensorDetailsText = `   ${monitranCodePre.innerText.replace(/\n/g, '\n   ')}`; } 
+        else if (wilcoxonCodePre && !wilcoxonCodePre.innerText.includes('generate')) { sensorDetailsText = `   ${wilcoxonCodePre.innerText.replace(/\n/g, '\n   ')}`; }
+        summaryText += `${sensorDetailsText}\n\n`;
+        summaryText += "2. Extension Cable:\n";
+        if (document.getElementById("extCable").value === "YES") { const extCodeText = document.getElementById("extCode").innerText.trim(); summaryText += `   - ${extCodeText.replace(/\n/g, '\n   - ')}\n\n`; } 
+        else { summaryText += "   - Not Required\n\n"; }
+        summaryText += "3. Mounting Accessories:\n";
+        let accessoriesFound = false;
+        if (document.getElementById("mountPad").checked) { summaryText += `   - Mounting Pad (MOC: ${document.getElementById("padMoc").value})\n`; accessoriesFound = true; }
+        if (document.getElementById("mountStud").checked) { const threadStd = document.getElementById("threadStd").value.trim(), threadDepth = document.getElementById("threadDepth").value.trim(); summaryText += `   - Mounting Stud (Thread: ${threadStd || 'N/A'}, Depth: ${threadDepth || 'N/A'}mm, MOC: ${document.getElementById("studMoc").value})\n`; accessoriesFound = true; }
+        if (!accessoriesFound) { summaryText += "   - None selected\n"; }
+        summaryText += "\n";
+        summaryText += "4. Junction Box Configuration:\n";
+        const jbOutputText = document.getElementById("jbOutput").innerText.trim();
+        if (jbOutputText.startsWith("Junction Box:")) { summaryText += `   - ${jbOutputText.replace(/\n/g, '\n   - ')}\n`; } 
+        else { summaryText += `   - Not configured.\n`; }
+        summaryText += "\n";
+
+        // NEW: Add Monitoring System to summary
+        summaryText += "5. Monitoring System:\n";
+        const monitoringType = document.getElementById("monitoringType")?.value;
+        if (monitoringType) {
+            const monitoringMake = document.getElementById("monitoringMake")?.value || 'N/A';
+            const monitoringModel = document.getElementById("monitoringModel")?.value || 'N/A';
+            summaryText += `   - Type: ${monitoringType}\n   - Make: ${monitoringMake}\n   - Model: ${monitoringModel}\n`;
+        } else {
+            summaryText += `   - Not Required\n`;
+        }
+
+        document.getElementById("fullSummaryOutput").innerText = summaryText;
+    }
+
+    document.getElementById("mountPad").addEventListener('change', () => {
+        const isChecked = document.getElementById("mountPad").checked;
+        document.getElementById("padOpts").style.display = isChecked ? "block" : "none";
+        if (!isChecked) document.getElementById("padCode").innerText = 'Click "Show Mounting Pad Code" to generate.';
+    });
+
+    document.getElementById("mountStud").addEventListener('change', () => {
+        const isChecked = document.getElementById("mountStud").checked;
+        document.getElementById("studOpts").style.display = isChecked ? "block" : "none";
+        if (!isChecked) document.getElementById("studCode").innerText = 'Click "Show Mounting Stud Code" to generate.';
+    });
+
+    toggleExt();
+</script>
+</body>
+</html>
