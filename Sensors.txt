@@ -1,0 +1,89 @@
+Sensors
+
+Safe or Hazardous
+Contact or Non Contact
+
+for Safe and Contact Type
+
+1. Acceleration : FM or Shinkawa
+FM: FM-ACCL, Shinkawa: CB101
+
+2. Velocity: FM or Shinkawa
+FM: FM VEL004B, Shinkawa: CV861
+
+3. Loop Powered: FM or Shinkawa
+FM: FM LPS or Shinkawa: CBT420
+
+Non Contact
+
+1. Eddy Current:
+Forbes Marshall (FL)
+2. Loop Powered eddy current:
+Forbes Marshall(WL)
+
+for Hazardous and Contact Type
+
+1. Acceleration :
+Shinkawa: CA302/EX5
+2. Velocity:
+ Shinkawa: CV 861/EX5
+
+Non Contact
+
+1. Eddy Current:
+Forbes Marshall (FL/E50)
+2. Loop Powered eddy current:
+Forbes Marshall(WL/NB1)
+
+
+Extension Cable
+If required
+Length
+Code
+
+Mounting Pad
+If required
+MOC
+
+Mounting Stud
+If required
+Thread
+Depth
+MOC
+
+Junction Box
+Terminal: (Jb In*3*1.2)
+Glands: (JB in + JB out)
+MOC
+JB Quantity: (Sensor Quantity/ JB In)
+
+VM-7B options
+Hardware
+VM 761B/2B
+VM-751B/3B/4B Power Supply Module
+VM-742B Network Communication Module
+VM-741B Local Communication & Phase Marker Module
+VM-701B Vibration/Displacement Monitor Module
+VM-702B Absolute Vibration Monitor Module
+VM-703B Tachometer & Eccentricity Monitor Module
+VM-704B Temperature Monitor Module
+VM-706B Rod Drop Monitor Module
+VM-721B 18-Channel Relay Module
+VM-722B 9-Channel Relay Module
+
+Blank Panels:
+VZ-71 30mm (W) Blank Panel
+VZ-75 20mm (W) Blank Panel
+VZ-76 50mm (W) Blank Panel
+
+Software: 
+VM-771B
+VM-772B
+VM-773B
+
+
+VM-21
+VM-5
+Vibtrans R
+FM-Vibtrans II
+
