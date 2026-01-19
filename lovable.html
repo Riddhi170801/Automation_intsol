@@ -1,0 +1,1235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vibration Sensor Configuration Builder</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-dark: #323C8A;
+            --primary-light: #D2D0E9;
+            --secondary-bg: #E8E7F5;
+            --accent-cyan: #34BFD9;
+            --accent-blue: #4273B8;
+            --accent-gold: #F0D262;
+            --white: #FFFFFF;
+            --text-dark: #1a1a2e;
+            --text-medium: #4a4a6a;
+            --text-light: #7a7a9a;
+            --success: #22c55e;
+            --error: #ef4444;
+            --shadow-sm: 0 2px 8px rgba(50, 60, 138, 0.08);
+            --shadow-md: 0 8px 24px rgba(50, 60, 138, 0.12);
+            --shadow-lg: 0 16px 48px rgba(50, 60, 138, 0.16);
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+            --radius-xl: 24px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, var(--secondary-bg) 0%, var(--primary-light) 50%, var(--secondary-bg) 100%);
+            min-height: 100vh;
+            color: var(--text-dark);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 48px;
+            position: relative;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 4px;
+            background: linear-gradient(90deg, var(--accent-cyan), var(--accent-gold));
+            border-radius: 2px;
+        }
+
+        .logo-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            background: var(--white);
+            padding: 12px 24px;
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-md);
+            margin-bottom: 20px;
+        }
+
+        .logo-icon {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, var(--primary-dark), var(--accent-blue));
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .logo-icon svg {
+            width: 28px;
+            height: 28px;
+            fill: var(--white);
+        }
+
+        .logo-text {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--primary-dark);
+        }
+
+        h1 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--primary-dark);
+            margin-bottom: 12px;
+            letter-spacing: -0.02em;
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            color: var(--text-medium);
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        /* Section Cards */
+        .section {
+            background: var(--white);
+            padding: 32px;
+            margin-bottom: 24px;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-md);
+            border: 1px solid rgba(50, 60, 138, 0.08);
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .section:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary-dark), var(--accent-blue), var(--accent-cyan));
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 28px;
+        }
+
+        .section-icon {
+            width: 44px;
+            height: 44px;
+            background: linear-gradient(135deg, var(--primary-light), var(--secondary-bg));
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .section-icon svg {
+            width: 24px;
+            height: 24px;
+            stroke: var(--primary-dark);
+            fill: none;
+            stroke-width: 2;
+        }
+
+        h3 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--primary-dark);
+            letter-spacing: -0.01em;
+        }
+
+        .section-number {
+            background: var(--accent-gold);
+            color: var(--text-dark);
+            font-size: 0.75rem;
+            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: 20px;
+            margin-left: auto;
+        }
+
+        /* Form Elements */
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+
+        label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-medium);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        select, input[type="number"], input[type="text"] {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid var(--primary-light);
+            border-radius: var(--radius-md);
+            font-size: 1rem;
+            font-family: 'Inter', sans-serif;
+            color: var(--text-dark);
+            background-color: var(--white);
+            transition: all 0.2s ease;
+            appearance: none;
+        }
+
+        select {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23323C8A' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            background-size: 18px;
+            padding-right: 44px;
+            cursor: pointer;
+        }
+
+        select:focus, input[type="number"]:focus, input[type="text"]:focus {
+            outline: none;
+            border-color: var(--accent-cyan);
+            box-shadow: 0 0 0 4px rgba(52, 191, 217, 0.15);
+        }
+
+        select:hover, input[type="number"]:hover, input[type="text"]:hover {
+            border-color: var(--accent-blue);
+        }
+
+        /* Checkbox styling */
+        .checkbox-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 16px;
+            background: var(--secondary-bg);
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: 2px solid transparent;
+        }
+
+        .checkbox-wrapper:hover {
+            background: var(--primary-light);
+        }
+
+        .checkbox-wrapper.active {
+            background: linear-gradient(135deg, rgba(52, 191, 217, 0.1), rgba(66, 115, 184, 0.1));
+            border-color: var(--accent-cyan);
+        }
+
+        input[type="checkbox"] {
+            width: 22px;
+            height: 22px;
+            accent-color: var(--primary-dark);
+            cursor: pointer;
+        }
+
+        .checkbox-label {
+            font-weight: 500;
+            color: var(--text-dark);
+            font-size: 1rem;
+        }
+
+        /* Nested options */
+        .nested-options {
+            display: none;
+            margin-top: 20px;
+            padding: 24px;
+            background: linear-gradient(135deg, var(--secondary-bg), var(--primary-light));
+            border-radius: var(--radius-md);
+            border-left: 4px solid var(--accent-cyan);
+        }
+
+        .nested-options.visible {
+            display: block;
+            animation: slideDown 0.3s ease;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Inline inputs */
+        .inline-inputs {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .inline-inputs input {
+            width: 100px;
+        }
+
+        .inline-inputs span {
+            color: var(--text-medium);
+            font-weight: 500;
+        }
+
+        /* Buttons */
+        .button-group {
+            display: flex;
+            gap: 12px;
+            margin-top: 24px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 14px 24px;
+            border: none;
+            border-radius: var(--radius-md);
+            font-size: 0.95rem;
+            font-weight: 600;
+            font-family: 'Inter', sans-serif;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            flex: 1;
+            min-width: 160px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-dark), var(--accent-blue));
+            color: var(--white);
+            box-shadow: 0 4px 14px rgba(50, 60, 138, 0.3);
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(50, 60, 138, 0.4);
+        }
+
+        .btn-secondary {
+            background: var(--white);
+            color: var(--primary-dark);
+            border: 2px solid var(--primary-light);
+        }
+
+        .btn-secondary:hover:not(:disabled) {
+            background: var(--secondary-bg);
+            border-color: var(--accent-blue);
+        }
+
+        .btn-accent {
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-blue));
+            color: var(--white);
+            box-shadow: 0 4px 14px rgba(52, 191, 217, 0.3);
+        }
+
+        .btn-accent:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(52, 191, 217, 0.4);
+        }
+
+        .btn-gold {
+            background: linear-gradient(135deg, var(--accent-gold), #e6c44a);
+            color: var(--text-dark);
+            box-shadow: 0 4px 14px rgba(240, 210, 98, 0.3);
+        }
+
+        .btn-gold:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(240, 210, 98, 0.4);
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+            box-shadow: none !important;
+        }
+
+        button:active:not(:disabled) {
+            transform: translateY(0);
+        }
+
+        button svg {
+            width: 18px;
+            height: 18px;
+            stroke: currentColor;
+            fill: none;
+            stroke-width: 2;
+        }
+
+        /* Output/Code display */
+        .output-box {
+            background: linear-gradient(135deg, #f8f9fc, var(--secondary-bg));
+            padding: 20px;
+            border-radius: var(--radius-md);
+            margin-top: 20px;
+            border: 2px dashed var(--primary-light);
+            position: relative;
+        }
+
+        .output-box pre {
+            font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+            font-size: 0.9rem;
+            color: var(--text-dark);
+            white-space: pre-wrap;
+            word-break: break-word;
+            margin: 0;
+            max-height: 180px;
+            overflow-y: auto;
+            line-height: 1.7;
+        }
+
+        .output-box::before {
+            content: 'OUTPUT';
+            position: absolute;
+            top: -10px;
+            left: 20px;
+            background: var(--white);
+            padding: 2px 12px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: var(--accent-blue);
+            letter-spacing: 0.1em;
+            border-radius: 4px;
+        }
+
+        /* Summary Section */
+        .summary-section {
+            background: linear-gradient(135deg, var(--primary-dark), var(--accent-blue));
+            color: var(--white);
+            border-radius: var(--radius-lg);
+            padding: 32px;
+            margin-top: 32px;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .summary-section::before {
+            display: none;
+        }
+
+        .summary-section h3 {
+            color: var(--white);
+        }
+
+        .summary-section .section-icon {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .summary-section .section-icon svg {
+            stroke: var(--white);
+        }
+
+        .summary-section .section-number {
+            background: var(--accent-gold);
+            color: var(--text-dark);
+        }
+
+        .summary-section .output-box {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .summary-section .output-box::before {
+            background: var(--primary-dark);
+            color: var(--accent-gold);
+        }
+
+        .summary-section pre {
+            color: var(--white);
+        }
+
+        /* Action buttons footer */
+        .action-footer {
+            display: flex;
+            gap: 16px;
+            margin-top: 24px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .action-footer button {
+            flex: 1;
+            min-width: 180px;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            border-radius: var(--radius-xl);
+            font-weight: 600;
+            font-size: 0.9rem;
+            background: var(--white);
+        }
+
+        .status-badge.not-submitted {
+            color: var(--error);
+        }
+
+        .status-badge.submitted {
+            color: var(--success);
+        }
+
+        /* Responsive */
+        @media (max-width: 640px) {
+            .container {
+                padding: 20px 16px;
+            }
+
+            h1 {
+                font-size: 1.75rem;
+            }
+
+            .section {
+                padding: 24px 20px;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            button {
+                width: 100%;
+                min-width: auto;
+            }
+
+            .inline-inputs {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .inline-inputs input {
+                width: 100%;
+            }
+        }
+
+        /* Scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--secondary-bg);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary-light);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--accent-blue);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="logo-badge">
+                <div class="logo-icon">
+                    <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+                </div>
+                <span class="logo-text">Industrial Config</span>
+            </div>
+            <h1>Vibration Sensor Configuration</h1>
+            <p class="subtitle">Configure your complete vibration monitoring system with precision and ease</p>
+        </div>
+
+        <!-- Section 1: Sensor -->
+        <div class="section">
+            <div class="section-header">
+                <div class="section-icon">
+                    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+                </div>
+                <h3>Sensor Configuration</h3>
+                <span class="section-number">01</span>
+            </div>
+
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="area">Area Classification</label>
+                    <select id="area">
+                        <option value="Safe">Safe Area</option>
+                        <option value="Hazardous">Hazardous Area</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="make">Sensor Make</label>
+                    <select id="make" onchange="updateOptions()">
+                        <option value="Shinkawa">Shinkawa (CBT-420)</option>
+                        <option value="Forbes Marshall">Forbes Marshall (FM-LPS)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="sensorQty">Quantity</label>
+                    <input type="number" id="sensorQty" value="1" min="1">
+                </div>
+
+                <div class="form-group">
+                    <label for="range">Range</label>
+                    <select id="range"></select>
+                </div>
+
+                <div class="form-group">
+                    <label for="measurement">Measurement Unit</label>
+                    <select id="measurement">
+                        <option value="P">PEAK</option>
+                        <option value="R">RMS</option>
+                    </select>
+                </div>
+
+                <div class="form-group" id="shinkawaOpts" style="display:none;">
+                    <label for="yy">Cable/Connector</label>
+                    <select id="yy">
+                        <option value="50">2 Pin MS</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="button-group">
+                <button class="btn-primary" onclick="showSensorCode()">
+                    <svg viewBox="0 0 24 24"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+                    Generate Code
+                </button>
+                <button class="btn-secondary" id="viewSensorDatasheetBtn" onclick="viewSensorDatasheet()" disabled>
+                    <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                    View Datasheet
+                </button>
+            </div>
+
+            <div class="output-box">
+                <pre id="sensorCode">Click "Generate Code" to see your sensor configuration.</pre>
+            </div>
+        </div>
+
+        <!-- Section 2: Extension Cable -->
+        <div class="section">
+            <div class="section-header">
+                <div class="section-icon">
+                    <svg viewBox="0 0 24 24"><path d="M4 9h16M4 15h16M10 3v18M14 3v18"/></svg>
+                </div>
+                <h3>Extension Cable</h3>
+                <span class="section-number">02</span>
+            </div>
+
+            <div class="form-group">
+                <label for="extCable">Requirement</label>
+                <select id="extCable" onchange="toggleExt()">
+                    <option value="NO">Not Required</option>
+                    <option value="YES">Required</option>
+                </select>
+            </div>
+
+            <div class="nested-options" id="extOptions">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="extLength">Cable Length</label>
+                        <select id="extLength">
+                            <option value="005">5 meters</option>
+                            <option value="010">10 meters</option>
+                            <option value="015">15 meters</option>
+                            <option value="020">20 meters</option>
+                            <option value="025">25 meters</option>
+                            <option value="030">30 meters</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="button-group">
+                    <button class="btn-primary" onclick="showExtCode()">
+                        <svg viewBox="0 0 24 24"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+                        Generate Code
+                    </button>
+                    <button class="btn-secondary" id="viewExtDatasheetBtn" onclick="viewExtDatasheet()" disabled>
+                        <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                        View Datasheet
+                    </button>
+                </div>
+
+                <div class="output-box">
+                    <pre id="extCode">Click "Generate Code" to see extension cable details.</pre>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 3: Mounting Accessories -->
+        <div class="section">
+            <div class="section-header">
+                <div class="section-icon">
+                    <svg viewBox="0 0 24 24"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+                </div>
+                <h3>Mounting Accessories</h3>
+                <span class="section-number">03</span>
+            </div>
+
+            <div class="form-grid">
+                <div class="form-group">
+                    <div class="checkbox-wrapper" id="mountPadWrapper" onclick="toggleCheckbox('mountPad')">
+                        <input type="checkbox" id="mountPad">
+                        <span class="checkbox-label">Mounting Pad</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="checkbox-wrapper" id="mountStudWrapper" onclick="toggleCheckbox('mountStud')">
+                        <input type="checkbox" id="mountStud">
+                        <span class="checkbox-label">Mounting Stud</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mounting Pad Options -->
+            <div class="nested-options" id="padOpts">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="padMoc">Material of Construction</label>
+                        <select id="padMoc">
+                            <option value="MS with SS insert (Standard)">MS with SS insert (Standard)</option>
+                            <option value="SS304 (Non Standard)">SS304 (Non Standard)</option>
+                            <option value="SS316L (Non Standard)">SS316L (Non Standard)</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="button-group">
+                    <button class="btn-primary" onclick="showMountPadCode()">
+                        <svg viewBox="0 0 24 24"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+                        Generate Code
+                    </button>
+                </div>
+                <div class="output-box">
+                    <pre id="padCode">Click "Generate Code" to see mounting pad details.</pre>
+                </div>
+            </div>
+
+            <!-- Mounting Stud Options -->
+            <div class="nested-options" id="studOpts">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="threadStd">Thread Details</label>
+                        <input type="text" id="threadStd" placeholder="e.g., M6 x 1.25">
+                    </div>
+                    <div class="form-group">
+                        <label for="threadDepth">Depth (mm)</label>
+                        <input type="number" id="threadDepth" placeholder="e.g., 10" min="1">
+                    </div>
+                    <div class="form-group">
+                        <label for="studMoc">Material of Construction</label>
+                        <select id="studMoc">
+                            <option value="SS304 (Standard)">SS304 (Standard)</option>
+                            <option value="SS316L (Non Standard)">SS316L (Non Standard)</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="button-group">
+                    <button class="btn-primary" onclick="showMountStudCode()">
+                        <svg viewBox="0 0 24 24"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+                        Generate Code
+                    </button>
+                </div>
+                <div class="output-box">
+                    <pre id="studCode">Click "Generate Code" to see mounting stud details.</pre>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 4: Junction Box -->
+        <div class="section">
+            <div class="section-header">
+                <div class="section-icon">
+                    <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/></svg>
+                </div>
+                <h3>Junction Box Configuration</h3>
+                <span class="section-number">04</span>
+            </div>
+
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="jbMoc">JB Material</label>
+                    <input type="text" id="jbMoc" placeholder="e.g., FRP">
+                </div>
+
+                <div class="form-group">
+                    <label>JB Configuration</label>
+                    <div class="inline-inputs">
+                        <input type="number" id="jbIn" placeholder="In" min="1">
+                        <span>in</span>
+                        <input type="number" id="jbOut" placeholder="Out" min="0">
+                        <span>out</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="glandMoc">Gland Material</label>
+                    <input type="text" id="glandMoc" placeholder="e.g., SS304">
+                </div>
+            </div>
+
+            <div class="button-group">
+                <button class="btn-primary" onclick="showJBConfig()">
+                    <svg viewBox="0 0 24 24"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+                    Generate Summary
+                </button>
+            </div>
+
+            <div class="output-box">
+                <pre id="jbOutput">Click "Generate Summary" to see junction box details.</pre>
+            </div>
+        </div>
+
+        <!-- Summary Section -->
+        <div class="section summary-section">
+            <div class="section-header">
+                <div class="section-icon">
+                    <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+                </div>
+                <h3>Complete Configuration Summary</h3>
+                <span class="section-number">FINAL</span>
+            </div>
+
+            <button class="btn-gold" onclick="generateFullSummary()" style="width: 100%; margin-bottom: 20px;">
+                <svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                Generate Full Summary
+            </button>
+
+            <div class="output-box">
+                <pre id="fullSummaryOutput">Click "Generate Full Summary" to see your complete configuration.</pre>
+            </div>
+
+            <div class="action-footer">
+                <button class="btn-accent" onclick="generatePDF()">
+                    <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                    Download PDF
+                </button>
+                <button class="btn-primary" id="submitBtn" onclick="toggleSubmit()" data-submitted="false">
+                    <svg viewBox="0 0 24 24"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+                    Submit
+                </button>
+                <div class="status-badge not-submitted" id="submitStatus">
+                    <span>❌</span> Not Submitted
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const DATASHEETS = {
+            'FM-EXTC': 'https://res.cloudinary.com/dzo1am1z1/image/upload/v1752062409/FM-EXTC-SS-010-1_beg2p0.png',
+            'FM-LPS': 'https://res.cloudinary.com/dzo1am1z1/image/upload/v1752062400/FM-LPS-420_series_spec_RevA-1_lf1zye.png',
+            'CBT-420': 'https://res.cloudinary.com/dzo1am1z1/image/upload/v1752062361/CBT-420-1_tofuxr.png'
+        };
+
+        function validateInput(elementId, outputElementId, message = "No data selected / Invalid Format") {
+            const element = document.getElementById(elementId);
+            const outputElement = document.getElementById(outputElementId);
+            if (!element || !outputElement) return false;
+
+            let isValid = true;
+            let value = element.value.trim();
+
+            if (element.type === 'number') {
+                if (value === '' || isNaN(value) || parseFloat(value) < 0 || (element.id === 'sensorQty' && parseFloat(value) < 1)) {
+                    isValid = false;
+                }
+            } else if (element.tagName === 'SELECT') {
+                if (value === '') {
+                    isValid = false;
+                }
+            } else {
+                if (value === '') {
+                    isValid = false;
+                }
+            }
+
+            if (!isValid) {
+                outputElement.innerText = message;
+                return false;
+            }
+            return true;
+        }
+
+        function updateOptions() {
+            let make = document.getElementById("make").value;
+            let range = document.getElementById("range");
+            range.innerHTML = "";
+            document.getElementById("shinkawaOpts").style.display = make === "Shinkawa" ? "block" : "none";
+            let ranges = make === "Shinkawa" ? [10,20,30,40,50,60,70,80,90,100] : [10,20,30,40,50];
+            ranges.forEach(v => {
+                let opt = document.createElement("option");
+                opt.value = v;
+                opt.text = `0-${v} mm/sec`;
+                range.appendChild(opt);
+            });
+        }
+
+        async function generatePDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+
+            const content = document.getElementById("fullSummaryOutput").innerText;
+            if (!content || content.trim() === '' || content.includes("Click \"Generate Full Summary\"")) {
+                alert("Please generate the full summary first.");
+                return;
+            }
+
+            const lines = doc.splitTextToSize(content, 180);
+            doc.setFont("courier", "normal");
+            doc.setFontSize(12);
+            doc.text(lines, 10, 20);
+            doc.save("Sensor_Configuration_Summary.pdf");
+        }
+
+        function toggleSubmit() {
+            const submitBtn = document.getElementById("submitBtn");
+            const status = document.getElementById("submitStatus");
+            const isSubmitted = submitBtn.getAttribute("data-submitted") === "true";
+
+            if (isSubmitted) {
+                submitBtn.innerHTML = '<svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" fill="none" stroke-width="2"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/></svg> Submit';
+                status.innerHTML = "<span>❌</span> Not Submitted";
+                status.className = "status-badge not-submitted";
+                submitBtn.setAttribute("data-submitted", "false");
+
+                document.querySelectorAll("input, select, button").forEach(el => {
+                    if (el.id !== "submitBtn" && el.id !== "viewSensorDatasheetBtn" && el.id !== "viewExtDatasheetBtn") {
+                        el.disabled = false;
+                    }
+                });
+            } else {
+                submitBtn.innerHTML = '<svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" fill="none" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> Edit';
+                status.innerHTML = "<span>✅</span> Submitted";
+                status.className = "status-badge submitted";
+                submitBtn.setAttribute("data-submitted", "true");
+
+                document.querySelectorAll("input, select, button").forEach(el => {
+                    if (el.id !== "submitBtn" && el.id !== "viewSensorDatasheetBtn" && el.id !== "viewExtDatasheetBtn") {
+                        el.disabled = true;
+                    }
+                });
+            }
+        }
+
+        function toggleExt() {
+            const extOptionsDiv = document.getElementById("extOptions");
+            const isRequired = document.getElementById("extCable").value === "YES";
+            extOptionsDiv.classList.toggle("visible", isRequired);
+            if (!isRequired) {
+                document.getElementById("extCode").innerText = 'Click "Generate Code" to see extension cable details.';
+                document.getElementById("viewExtDatasheetBtn").disabled = true;
+            }
+        }
+
+        function toggleCheckbox(id) {
+            const checkbox = document.getElementById(id);
+            checkbox.checked = !checkbox.checked;
+            
+            const wrapper = document.getElementById(id + 'Wrapper');
+            wrapper.classList.toggle('active', checkbox.checked);
+
+            if (id === 'mountPad') {
+                const opts = document.getElementById('padOpts');
+                opts.classList.toggle('visible', checkbox.checked);
+                if (!checkbox.checked) {
+                    document.getElementById('padCode').innerText = 'Click "Generate Code" to see mounting pad details.';
+                }
+            } else if (id === 'mountStud') {
+                const opts = document.getElementById('studOpts');
+                opts.classList.toggle('visible', checkbox.checked);
+                if (!checkbox.checked) {
+                    document.getElementById('studCode').innerText = 'Click "Generate Code" to see mounting stud details.';
+                }
+            }
+        }
+
+        function showSensorCode() {
+            const sensorCodePre = document.getElementById("sensorCode");
+            const viewSensorDatasheetBtn = document.getElementById("viewSensorDatasheetBtn");
+            viewSensorDatasheetBtn.disabled = true;
+
+            if (!validateInput('sensorQty', 'sensorCode')) return;
+            const qty = parseInt(document.getElementById("sensorQty").value);
+            if (qty < 1) {
+                sensorCodePre.innerText = "Quantity must be at least 1.";
+                return;
+            }
+
+            const make = document.getElementById("make").value;
+            const range = document.getElementById("range").value;
+            const measure = document.getElementById("measurement").value;
+
+            if (!validateInput('make', 'sensorCode', 'Please select a sensor make.')) return;
+            if (!validateInput('range', 'sensorCode', 'Please select a sensor range.')) return;
+            if (!validateInput('measurement', 'sensorCode', 'Please select a measurement unit.')) return;
+
+            let out = "";
+            if (make === "Shinkawa") {
+                const yy = document.getElementById("yy").value;
+                if (!validateInput('yy', 'sensorCode', 'Please select Cable/Connector for Shinkawa.')) return;
+
+                const paddedRange = range === "100" ? "100" : range.padStart(3, '0');
+                const measureText = measure === "P" ? "PEAK" : "RMS";
+                out += `Full Code: CBT-420-${paddedRange}-${yy}-01\nQuantity: ${qty}\nRange: ${range} mm/sec (${measureText})\nCBT-420 Series Loop powered sensor with ${range} mm/sec ${measureText} output, 4-20 mA for PLC/DCS connectivity, with 2 pin MS connector, MOC: SS316L, with grub screw 1/4' 28 UNF female`;
+            } else {
+                const measureText = measure === "P" ? "PEAK" : "RMS";
+                out += `Full Code: FM-LPS-420-${range}B-${measure}-W\nQuantity: ${qty}\nRange: ${range} mm/sec (${measureText})\nFM-LPS Loop powered sensor with ${range} mm/sec ${measureText} output, 4-20 mA, for PLC/DCS integration`;
+            }
+
+            sensorCodePre.innerText = out;
+            viewSensorDatasheetBtn.disabled = false;
+        }
+
+        function viewSensorDatasheet() {
+            let make = document.getElementById("make").value;
+            let datasheetUrl = '';
+            if (make === "Shinkawa") {
+                datasheetUrl = DATASHEETS['CBT-420'];
+            } else if (make === "Forbes Marshall") {
+                datasheetUrl = DATASHEETS['FM-LPS'];
+            }
+
+            if (datasheetUrl) {
+                window.open(datasheetUrl, '_blank');
+            } else {
+                alert('Datasheet not available for the selected sensor make.');
+            }
+        }
+
+        function showExtCode() {
+            const extCodePre = document.getElementById("extCode");
+            const viewExtDatasheetBtn = document.getElementById("viewExtDatasheetBtn");
+            viewExtDatasheetBtn.disabled = true;
+
+            if (document.getElementById("extCable").value === "NO") {
+                extCodePre.innerText = 'Extension cable not required.';
+                return;
+            }
+
+            if (!validateInput('extLength', 'extCode', 'Please select an extension cable length.')) return;
+
+            const extLen = document.getElementById("extLength").value;
+            let out = `FM-EXTC-SS-${extLen}\nFM Standard ${parseInt(extLen)} meter Extension cables with Flexible SS conduit`;
+            document.getElementById("extCode").innerText = out;
+            viewExtDatasheetBtn.disabled = false;
+        }
+
+        function viewExtDatasheet() {
+            const datasheetUrl = DATASHEETS['FM-EXTC'];
+            if (datasheetUrl) {
+                window.open(datasheetUrl, '_blank');
+            } else {
+                alert('Datasheet not available for extension cable.');
+            }
+        }
+
+        function showMountPadCode() {
+            const padCodePre = document.getElementById("padCode");
+            const padMoc = document.getElementById("padMoc").value;
+
+            if (!padMoc) {
+                padCodePre.innerText = "Please select MOC for Mounting Pad.";
+                return;
+            }
+
+            padCodePre.innerText = `FM std mounting pad 30x30x15, MOC: ${padMoc}`;
+        }
+
+        function showMountStudCode() {
+            const studCodePre = document.getElementById("studCode");
+            const threadStd = document.getElementById("threadStd").value.trim();
+            const threadDepth = document.getElementById("threadDepth").value.trim();
+            const studMoc = document.getElementById("studMoc").value;
+
+            if (!studMoc) {
+                studCodePre.innerText = "Please select MOC for Mounting Stud.";
+                return;
+            }
+
+            const threadInfo = threadStd || "(not specified)";
+            const depthInfo = threadDepth ? `${threadDepth} mm` : "(not specified)";
+
+            const output = `Mounting Stud with MOC: ${studMoc}, Thread details: ${threadInfo}, Depth: ${depthInfo}`;
+            studCodePre.innerText = output;
+        }
+
+        function showJBConfig() {
+            const jbOutputPre = document.getElementById("jbOutput");
+
+            if (!validateInput('jbMoc', 'jbOutput', 'JB MOC cannot be empty.')) return;
+            if (!validateInput('glandMoc', 'jbOutput', 'Gland MOC cannot be empty.')) return;
+            if (!validateInput('jbIn', 'jbOutput', 'Number of Inlets must be a valid positive number.')) return;
+            if (!validateInput('jbOut', 'jbOutput', 'Number of Outlets must be a valid non-negative number.')) return;
+
+            const qty = parseInt(document.getElementById("sensorQty").value) || 1;
+            const jbMoc = document.getElementById("jbMoc").value;
+            const jbIn = parseInt(document.getElementById("jbIn").value);
+            const jbOut = parseInt(document.getElementById("jbOut").value);
+            const glandMoc = document.getElementById("glandMoc").value;
+
+            if (jbIn <= 0) {
+                jbOutputPre.innerText = "Number of Inlets must be at least 1.";
+                return;
+            }
+            if (jbOut < 0) {
+                jbOutputPre.innerText = "Number of Outlets cannot be negative.";
+                return;
+            }
+
+            let terminals = Math.ceil((jbIn * 3) + (jbIn * 3 * 0.2));
+            let glands = jbIn + jbOut;
+            let jbQty = Math.ceil(qty / jbIn);
+
+            let out = `Junction Box: ${jbMoc}, ${jbIn} in ${jbOut} out\nTerminals: (JBin)${jbIn} * (Axis)3 + (20% Spares)${jbIn * 3 * 0.2}= ${terminals}\nGlands: ${glands}\nGland MOC: ${glandMoc}\nJB Quantity: ${jbQty}`;
+            jbOutputPre.innerText = out;
+        }
+
+        function generateFullSummary() {
+            const summaryOutput = document.getElementById("fullSummaryOutput");
+            let summaryText = "Complete Configuration Summary\n" + "═".repeat(40) + "\n\n";
+
+            summaryText += "1. SENSOR CONFIGURATION\n" + "─".repeat(30) + "\n";
+
+            const sensorCodeText = document.getElementById("sensorCode").innerText.trim();
+            if (sensorCodeText.startsWith("Full Code:")) {
+                const firstLineEnd = sensorCodeText.indexOf("\n");
+                const fullCodeLine = sensorCodeText.substring(0, firstLineEnd);
+                const descriptionLines = sensorCodeText
+                    .substring(firstLineEnd + 1)
+                    .split("\n")
+                    .filter(line => !line.startsWith("Quantity") && !line.startsWith("Range"))
+                    .join("\n   ");
+                
+                summaryText += `   ${descriptionLines}\n`;
+                summaryText += `   ${fullCodeLine}\n`;
+            } else {
+                summaryText += `   ⚠ Sensor details incomplete\n`;
+            }
+
+            summaryText += `   • Area: ${document.getElementById("area").value}\n`;
+            summaryText += `   • Make: ${document.getElementById("make").value}\n`;
+            summaryText += `   • Quantity: ${document.getElementById("sensorQty").value}\n`;
+            summaryText += `   • Range: ${document.getElementById("range").value} mm/sec\n`;
+
+            const measureValue = document.getElementById("measurement").value;
+            const measureText = measureValue === "P" ? "PEAK" : "RMS";
+            summaryText += `   • Measurement: ${measureText}\n`;
+
+            if (document.getElementById("make").value === "Shinkawa") {
+                summaryText += `   • Connector: ${document.getElementById("yy").options[document.getElementById("yy").selectedIndex].text}\n`;
+            }
+
+            summaryText += "\n2. EXTENSION CABLE\n" + "─".repeat(30) + "\n";
+            if (document.getElementById("extCable").value === "YES") {
+                const extCodeText = document.getElementById("extCode").innerText.trim();
+                if (extCodeText.startsWith("FM-EXTC")) {
+                    summaryText += `   ${extCodeText}\n`;
+                } else {
+                    summaryText += `   ⚠ Extension cable details incomplete\n`;
+                }
+            } else {
+                summaryText += "   Not Required\n";
+            }
+
+            summaryText += "\n3. MOUNTING ACCESSORIES\n" + "─".repeat(30) + "\n";
+            let accessoriesFound = false;
+            if (document.getElementById("mountPad").checked) {
+                summaryText += `   • Mounting Pad (MOC: ${document.getElementById("padMoc").value})\n`;
+                accessoriesFound = true;
+            }
+            if (document.getElementById("mountStud").checked) {
+                const threadStd = document.getElementById("threadStd").value.trim();
+                const threadDepth = document.getElementById("threadDepth").value.trim();
+                const studMoc = document.getElementById("studMoc").value;
+                summaryText += `   • Mounting Stud\n`;
+                summaryText += `     Thread: ${threadStd || 'N/A'}\n`;
+                summaryText += `     Depth: ${threadDepth || 'N/A'}mm\n`;
+                summaryText += `     MOC: ${studMoc}\n`;
+                accessoriesFound = true;
+            }
+            if (!accessoriesFound) {
+                summaryText += "   None selected\n";
+            }
+
+            summaryText += "\n4. JUNCTION BOX\n" + "─".repeat(30) + "\n";
+            const jbOutputText = document.getElementById("jbOutput").innerText.trim();
+            if (jbOutputText.startsWith("Junction Box:")) {
+                summaryText += `   ${jbOutputText.split('\n').join('\n   ')}\n`;
+            } else {
+                summaryText += `   ⚠ Junction box details incomplete\n`;
+            }
+
+            summaryText += "\n" + "═".repeat(40) + "\n";
+            summaryText += "Configuration generated successfully!";
+
+            summaryOutput.innerText = summaryText;
+        }
+
+        // Initialize
+        updateOptions();
+        toggleExt();
+    </script>
+</body>
+</html>
+
+
+

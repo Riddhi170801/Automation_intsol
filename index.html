@@ -189,6 +189,16 @@
             margin-bottom: 20px;
         }
 
+        .datasheet-btn {
+        background-color: #e67e22 !important; /* Orange color */
+        margin-left: 15px;
+        font-size: 0.8rem !important;
+        padding: 6px 15px !important;
+        }
+        .datasheet-btn:hover {
+            background-color: #d35400 !important;
+        }
+
         /* --- Buttons --- */
         .button-group {
             display: flex;
@@ -356,7 +366,15 @@
                     <div class="form-grid">
                         <div>
                             <h4>Extension Cable</h4><br>
-                            <div class="form-group" id="extCableSection"><select id="extCable" onchange="toggleExt()"><option value="NO">Not Required</option><option value="YES">Required</option></select></div>
+                            <div class="form-group" id="extCableSection">
+    <div style="display:flex; gap:10px; align-items:center;">
+        <select id="extCable" onchange="toggleExt()">
+            <option value="NO">Not Required</option>
+            <option value="YES">Required</option>
+        </select>
+        <button id="extDatasheetBtn" class="datasheet-btn" style="display:none; margin-left:0;" onclick="window.open(datasheetLinks['extCable'], '_blank')">📄 View Cable Specs</button>
+    </div>
+</div>
                         <div id="extOptions" style="display:none;">
                             <div class="form-group">
                                 <label for="extLength"><br>LENGTH</label>
@@ -461,7 +479,61 @@
             </div>
         </div>
     </div>
+
 <script>
+
+    const datasheetLinks = {
+        //Safe
+        "FL-202F08 [Linear Range: 2 mm, Tip Dia.: 8mm]": "https://res.cloudinary.com/dzo1am1z1/image/upload/v1768388180/FK-series_Brochure_fiv2qe.pdf",
+        "FL-143F27 [Linear Range: 13.5 mm, Tip Dia.: 27mm]": "https://res.cloudinary.com/dzo1am1z1/image/upload/v1768388180/FK-series_Brochure_fiv2qe.pdf",
+        "FL-202F05 [Linear Range: 2 mm, Tip Dia.: 5mm]": "https://res.cloudinary.com/dzo1am1z1/image/upload/v1768388180/FK-series_Brochure_fiv2qe.pdf",
+        "FL-202F08R [Linear Range: 2 mm, Tip Dia.: 8mm, R]": "https://res.cloudinary.com/dzo1am1z1/image/upload/v1768388180/FK-series_Brochure_fiv2qe.pdf",
+        "FL-263F55 [Linear Range: 26 mm, Tip Dia.: 55mm]": "https://res.cloudinary.com/dzo1am1z1/image/upload/v1768388180/FK-series_Brochure_fiv2qe.pdf",
+        "FL-143F28 [Linear Range: 13.5 mm, Tip Dia.: 27mm]": "https://res.cloudinary.com/dzo1am1z1/image/upload/v1768388180/FK-series_Brochure_fiv2qe.pdf",
+        "FL-602F18 [Linear Range: 6 mm, Tip Dia.: 18mm]": "https://res.cloudinary.com/dzo1am1z1/image/upload/v1768388180/FK-series_Brochure_fiv2qe.pdf",
+        "FL-263F50 [Linear Range: 26 mm, Tip Dia.: 50mm]": "https://res.cloudinary.com/dzo1am1z1/image/upload/v1768388180/FK-series_Brochure_fiv2qe.pdf",
+        "FL-302F10 [Linear Range: 3 mm, Tip Dia.: 10mm]": "https://res.cloudinary.com/dzo1am1z1/image/upload/v1768388180/FK-series_Brochure_fiv2qe.pdf",
+        "FL-302F10R [Linear Range: 3 mm, Tip Dia.: 10mm, Reverse Mount]": "https://res.cloudinary.com/dzo1am1z1/image/upload/v1768388180/FK-series_Brochure_fiv2qe.pdf",
+        "FL-452F11 [Linear Range: 4.5 mm, Tip Dia.: 11mm]": "https://res.cloudinary.com/dzo1am1z1/image/upload/v1768388180/FK-series_Brochure_fiv2qe.pdf",
+        "WL-142K05": "https://res.cloudinary.com/dzo1am1z1/image/upload/v1768388179/WKN_nfkeea.pdf",
+        "Forbes Marshall: FM-VEL-004B": "https://res.cloudinary.com/dzo1am1z1/image/upload/v1768388178/FM-VEL-004_Brochure_g3whem.pdf",
+        "Shinkawa: CV-86": "https://res.cloudinary.com/dzo1am1z1/image/upload/v1768388190/CACV_Brochure_jucrfe.pdf",
+        "Forbes Marshall: FM-ACCL-100":"https://res.cloudinary.com/dzo1am1z1/image/upload/v1768388178/FM-ACCL-100-_Brochure_q1lrla.pdf",
+        "Shinkawa: CB-101": "https://res.cloudinary.com/dzo1am1z1/image/upload/v1768388179/cb101_se_o8w8q0.pdf",
+        "Shinkawa: CA-72": "https://res.cloudinary.com/dzo1am1z1/image/upload/v1768388190/CACV_Brochure_jucrfe.pdf",
+        "Shinkawa: CBT": "https://res.cloudinary.com/dzo1am1z1/image/upload/v1752062361/CBT-420-1_tofuxr.png",
+        "FM-LPS": "https://res.cloudinary.com/dzo1am1z1/image/upload/v1752062400/FM-LPS-420_series_spec_RevA-1_lf1zye.png",
+
+        //Hazardous
+        "Shinkawa: CV-86/EX": "https://res.cloudinary.com/dzo1am1z1/image/upload/v1768388190/CACV_Brochure_jucrfe.pdf",
+        "WL-142K05/NB1": "https://res.cloudinary.com/dzo1am1z1/image/upload/v1768388179/WKN_nfkeea.pdf",
+        "Shinkawa: CA-302": "https://res.cloudinary.com/dzo1am1z1/image/upload/v1768388190/CACV_Brochure_jucrfe.pdf",
+        "Monitran": "https://res.cloudinary.com/dzo1am1z1/image/upload/v1753964244/Monitran_mjjfd1.pdf",
+        "Wilcoxon": "https://res.cloudinary.com/dzo1am1z1/image/upload/v1753964287/Wilcoxon_xf1naq.pdf",
+        "FL-202F08/E50 [Linear Range: 2 mm, Tip Dia.: 8mm]": "https://res.cloudinary.com/dzo1am1z1/image/upload/v1768388180/FK-series_Brochure_fiv2qe.pdf",
+        "FL-143F27/E50 [Linear Range: 13.5 mm, Tip Dia.: 27mm]": "https://res.cloudinary.com/dzo1am1z1/image/upload/v1768388180/FK-series_Brochure_fiv2qe.pdf",
+        "FL-202F05/E50 [Linear Range: 2 mm, Tip Dia.: 5mm]": "https://res.cloudinary.com/dzo1am1z1/image/upload/v1768388180/FK-series_Brochure_fiv2qe.pdf",
+        "FL-202F08R/E50 [Linear Range: 2 mm, Tip Dia.: 8mm, R]": "https://res.cloudinary.com/dzo1am1z1/image/upload/v1768388180/FK-series_Brochure_fiv2qe.pdf",
+        "FL-263F55/E50 [Linear Range: 26 mm, Tip Dia.: 55mm]": "https://res.cloudinary.com/dzo1am1z1/image/upload/v1768388180/FK-series_Brochure_fiv2qe.pdf",
+        "FL-143F28/E50 [Linear Range: 13.5 mm, Tip Dia.: 27mm]": "https://res.cloudinary.com/dzo1am1z1/image/upload/v1768388180/FK-series_Brochure_fiv2qe.pdf",
+        "FL-602F18/E50 [Linear Range: 6 mm, Tip Dia.: 18mm]": "https://res.cloudinary.com/dzo1am1z1/image/upload/v1768388180/FK-series_Brochure_fiv2qe.pdf",
+        "FL-263F50/E50 [Linear Range: 26 mm, Tip Dia.: 50mm]": "https://res.cloudinary.com/dzo1am1z1/image/upload/v1768388180/FK-series_Brochure_fiv2qe.pdf",
+        "FL-302F10/E50 [Linear Range: 3 mm, Tip Dia.: 10mm]": "https://res.cloudinary.com/dzo1am1z1/image/upload/v1768388180/FK-series_Brochure_fiv2qe.pdf",
+        "FL-302F10R/E50 [Linear Range: 3 mm, Tip Dia.: 10mm, Reverse Mount]": "https://res.cloudinary.com/dzo1am1z1/image/upload/v1768388180/FK-series_Brochure_fiv2qe.pdf",
+        "FL-452F11/E50 [Linear Range: 4.5 mm, Tip Dia.: 11mm]": "https://res.cloudinary.com/dzo1am1z1/image/upload/v1768388180/FK-series_Brochure_fiv2qe.pdf",
+        
+        "extCable": "https://res.cloudinary.com/dzo1am1z1/image/upload/v1752062409/FM-EXTC-SS-010-1_beg2p0.png",
+        //Standalone
+        "FM Vibtrans II ": "https://res.cloudinary.com/dzo1am1z1/image/upload/v1762505412/VibTrans-Dual-Channel_Brochure_oz6q6n.pdf",
+        "VM 21": "https://res.cloudinary.com/dzo1am1z1/image/upload/v1762505415/VM21_Brochure_oyygk0.pdf",
+        "VM 25": "https://res.cloudinary.com/dzo1am1z1/image/upload/v1762505414/VM25_Brochure_zz37po.pdf",
+
+        //API
+        "VM 5": "https://res.cloudinary.com/dzo1am1z1/image/upload/v1762505379/VM5_Brochure_dab7he.pdf",
+        "VM 7": "https://res.cloudinary.com/dzo1am1z1/image/upload/v1762505413/VM7_Brochure_tazkpg.pdf",
+        "Vibtrans R": "https://res.cloudinary.com/dzo1am1z1/image/upload/v1762505414/VibTrans-R_Brochure_va9tp3.pdf",
+
+    };
 
     // --- APP STATE & NAVIGATION ---
     let currentStep = 1;
@@ -611,19 +683,28 @@
         measurementContainer.innerHTML = html;
         updateLiveSummary();
     }
+
+function openStaticDatasheet() {
+    const make = document.getElementById("make").value;
+    let link = "";
+    if (make.includes("Shinkawa")) link = datasheetLinks["Shinkawa: CBT"];
+    else if (make.includes("Forbes Marshall")) link = datasheetLinks["FM-LPS"];
+    
+    if(link) window.open(link, '_blank');
+}
+function openHazStaticDatasheet() {
+    const make = document.getElementById("hazMake").value;
+    if(datasheetLinks[make]) window.open(datasheetLinks[make], '_blank');
+}
     
 function renderMakeOptions() {
-    // 1. Get current values using the CORRECT element IDs
     const area = document.getElementById('area').value;
     const type = document.getElementById('sensorType').value;
     const measurement = document.getElementById('measurementType').value;
-
-    // 2. Get the containers we will be modifying
     const makeContainer = document.getElementById('sensorMakeContainer');
     const multiGenContainer = document.getElementById('multi_generator_container');
     const modelSelector = document.getElementById('sensor_model_selector');
 
-    // 3. Reset all containers to a clean state
     makeContainer.innerHTML = '';
     multiGenContainer.style.display = 'none';
     document.getElementById('code_generators_wrapper').querySelectorAll('.generator-panel').forEach(p => p.style.display = 'none');
@@ -635,8 +716,7 @@ function renderMakeOptions() {
     }
 
     let modelsToShow = [];
-    let html = ''; // For non-generator HTML
-
+    // ... [keep your existing if/else if logic for modelsToShow here] ...
     if (area === 'Safe' && type === 'Non-Contact' && measurement === 'Eddy Current') {
         modelsToShow = ['FL-202F08 [Linear Range: 2 mm, Tip Dia.: 8mm]', 'FL-143F27 [Linear Range: 13.5 mm, Tip Dia.: 27mm]', 'FL-202F05 [Linear Range: 2 mm, Tip Dia.: 5mm]', 'FL-202F08R [Linear Range: 2 mm, Tip Dia.: 8mm, Reverese Mount]', 'FL-263F55 [Linear Range: 26 mm, Tip Dia.: 55mm]', 'FL-143F28 [Linear Range: 13.5 mm, Tip Dia.: 27mm]', 'FL-602F18 [Linear Range: 6 mm, Tip Dia.: 18mm]', 'FL-263F50 [Linear Range: 26 mm, Tip Dia.: 50mm]', 'FL-302F10 [Linear Range: 3 mm, Tip Dia.: 10mm]', 'FL-302F10R [Linear Range: 3 mm, Tip Dia.: 10mm, R]', 'FL-452F11 [Linear Range: 4.5 mm, Tip Dia.: 11mm]'];
     } else if (area === 'Safe' && type === 'Non-Contact' && measurement === 'Loop Powered Eddy Current') {
@@ -649,90 +729,51 @@ function renderMakeOptions() {
         modelsToShow = ['Shinkawa: CV-86/EX'];
     } else if (area === 'Hazardous' && type === 'Contact' && measurement === 'Acceleration') {
         modelsToShow = ['Shinkawa: CA-302', 'Shinkawa: CA-72'];
-    } 
-    else if (area === 'Hazardous' && type === 'Non-Contact' && measurement === 'Eddy Current') {
+    } else if (area === 'Hazardous' && type === 'Non-Contact' && measurement === 'Eddy Current') {
         modelsToShow = ['FL-202F08/E50 [Linear Range: 2 mm, Tip Dia.: 8mm]', 'FL-143F27/E50 [Linear Range: 13.5 mm, Tip Dia.: 27mm]', 'FL-202F05/E50 [Linear Range: 2 mm, Tip Dia.: 5mm]', 'FL-202F08R/E50 [Linear Range: 2 mm, Tip Dia.: 8mm, R]', 'FL-263F55/E50 [Linear Range: 26 mm, Tip Dia.: 55mm]', 'FL-143F28/E50 [Linear Range: 13.5 mm, Tip Dia.: 27mm]', 'FL-602F18/E50 [Linear Range: 6 mm, Tip Dia.: 18mm]', 'FL-263F50/E50 [Linear Range: 26 mm, Tip Dia.: 50mm]', 'FL-302F10/E50 [Linear Range: 3 mm, Tip Dia.: 10mm]', 'FL-302F10R/E50 [Linear Range: 3 mm, Tip Dia.: 10mm, Reverse Mount]', 'FL-452F11/E50 [Linear Range: 4.5 mm, Tip Dia.: 11mm]'];
-    }
-    else if (area === 'Hazardous' && type === 'Non-Contact' && measurement === 'Loop Powered Eddy Current') {
+    } else if (area === 'Hazardous' && type === 'Non-Contact' && measurement === 'Loop Powered Eddy Current') {
         modelsToShow = ['WL-142K05/NB1'];
     }
 
     if (modelsToShow.length > 0) {
-        modelsToShow.forEach(model => {
-            if (allGenerators[model]) {
-                modelSelector.add(new Option(model, model));
-            }
-        });
+        modelsToShow.forEach(model => { if (allGenerators[model]) modelSelector.add(new Option(model, model)); });
         multiGenContainer.style.display = 'block';
-        showGeneratorPanel(); 
+        showGeneratorPanel();
         updateLiveSummary();
-        return; 
+        return;
     }
 
-    html = '<div class="card" style="margin-top:20px;">';
-
-    if (area === 'Safe' && type === 'Contact' && measurement === 'Loop Powered') {
-        html += `<div class="card-header" style="margin-bottom:15px"><h3>Sensor Details</h3></div>
-                 
-                 <div class="form-group code-display">
-                     <span id="safe-loop-powered-code" class="mono text-2xl"></span>
+    // Static render for Loop Powered
+    let html = '<div class="card" style="margin-top:20px;">';
+    if (measurement === 'Loop Powered') {
+        html += `<div class="card-header" style="display:flex; justify-content:space-between; align-items:center;">
+                    <h3>Sensor Details</h3>
+                    <button id="staticDatasheetBtn" class="datasheet-btn" style="display:none;">📄 View Datasheet</button>
                  </div>
-
+                 <div class="form-group code-display">
+                     <span id="${area === 'Safe' ? 'safe' : 'haz'}-loop-powered-code" class="mono text-2xl"></span>
+                 </div>
                  <div class="form-grid">
                      <div class="form-group">
                          <label>MAKE</label>
-                         <select id="make" onchange="updateOptions()">
-                             <option>Shinkawa: CBT</option>
-                             <option>Forbes Marshall: FM-LPS</option>
-                         </select>
-                     </div>
-                 </div>
-                 <div class="form-group">
-                     <br><label>RANGE</label>
-                     <select id="range" onchange="generateSafeLoopPoweredCode()"></select>
-                 </div>
-                 <div class="form-group">
-                     <br><label>UNIT</label>
-                     <select id="measurement" onchange="generateSafeLoopPoweredCode()">
-                         <option value="P">PEAK</option>
-                         <option value="R">RMS</option>
-                     </select>
-                 </div>
-                 <div id="shinkawaOpts" style="display:none;">
-                     <div class="form-group">
-                         <br><label>CABLE/CONNECTOR</label>
-                         <select id="yy" onchange="generateSafeLoopPoweredCode()">
-                             <option value="50">2 Pin MS</option>
+                         <select id="${area === 'Safe' ? 'make' : 'hazMake'}" onchange="${area === 'Safe' ? 'updateOptions()' : 'renderHazardousDetails()'}">
+                             ${area === 'Safe' ? 
+                                '<option value="">-- Select --</option><option value="Shinkawa: CBT">Shinkawa: CBT</option><option value="Forbes Marshall: FM-LPS">Forbes Marshall: FM-LPS</option>' : 
+                                '<option value="">-- Select --</option><option value="Monitran">Monitran</option><option value="Wilcoxon">Wilcoxon</option>'}
                          </select>
                      </div>
                  </div>`;
-    } else if (area === 'Hazardous' && type === 'Contact' && measurement === 'Loop Powered') {
-    
-    html += `<div class="card-header" style="margin-bottom:15px"><h3>Make</h3></div>
-             
-             <div class="form-group code-display"><span id="haz-loop-powered-code" class="mono text-2xl"></span></div>
-             
-             <div class="form-group"><select id="hazMake" onchange="renderHazardousDetails()"><option value="">-- Select --</option><option>Monitran</option><option>Wilcoxon</option></select></div>
-             <div id="hazardousDetails"></div>`;
-    } 
-    else {
-        html += '<p style="text-align:center; padding: 20px;">Configuration not available for this selection.</p>';
+        
+        if (area === 'Safe') {
+            html += `<div class="form-group"><br><label>RANGE</label><select id="range" onchange="generateSafeLoopPoweredCode()"></select></div>
+                     <div class="form-group"><br><label>UNIT</label><select id="measurement" onchange="generateSafeLoopPoweredCode()"><option value="P">PEAK</option><option value="R">RMS</option></select></div>
+                     <div id="shinkawaOpts" style="display:none;"><div class="form-group"><br><label>CABLE/CONNECTOR</label><select id="yy" onchange="generateSafeLoopPoweredCode()"><option value="50">2 Pin MS</option></select></div></div>`;
+        } else {
+            html += `<div id="hazardousDetails"></div>`;
+        }
     }
-
     html += '</div>';
     makeContainer.innerHTML = html;
-
-    // --- IMPORTANT: Activate scripts for the newly added HTML ---
-    if (area === 'Safe' && type === 'Contact' && measurement === 'Loop Powered') {
-        updateOptions(); // This initializes the dependent dropdowns
-        generateSafeLoopPoweredCode(); 
-    }
-
-    // *** THIS BLOCK WAS MISSING ***
-    if (area === 'Hazardous' && type === 'Contact' && measurement === 'Loop Powered') {
-        renderHazardousDetails(); // This will call generateHazLoopPoweredCode() on init
-    }
-    
     updateLiveSummary();
 }
     
@@ -789,32 +830,53 @@ function renderMakeOptions() {
 
     let options = '';
     if (type === 'Standalone' && make === 'Shinkawa') options = `<option>VM 21</option><option>VM 25</option>`;
-    else if (type === 'Standalone' && make === 'FM') options = `<option>FM Vibtrans II</option>`;
-    else if (type === 'API' && make === 'Shinkawa') options = `<option>VM 5</option><option value="VM 7">VM 7</option>`; // Added value="VM 7" for clarity
+    else if (type === 'Standalone' && make === 'FM') options = `<option value="FM Vibtrans II ">FM Vibtrans II</option>`; // Note the space in value to match your key
+    else if (type === 'API' && make === 'Shinkawa') options = `<option>VM 5</option><option value="VM 7">VM 7</option>`;
     else if (type === 'API' && make === 'FM') options = `<option>Vibtrans R</option>`;
     
     if (options) {
         container.innerHTML = `
-            <div class="form-group" style="margin-top:20px;">
-                <label for="monitoringModel">Model</label>
-                <select id="monitoringModel" onchange="handleModelChange()"><option value="">-- Select --</option>${options}</select>
+            <div class="card" style="margin-top:20px; border: 1px solid var(--primary-accent);">
+                <div class="card-header" style="display:flex; justify-content:space-between; align-items:center;">
+                    <h3>Model Selection</h3>
+                    <button id="monitoringDatasheetBtn" class="datasheet-btn" style="display:none;">📄 View Datasheet</button>
+                </div>
+                <div class="form-group">
+                    <label for="monitoringModel">Select Model</label>
+                    <select id="monitoringModel" onchange="handleModelChange()">
+                        <option value="">-- Select --</option>
+                        ${options}
+                    </select>
+                </div>
             </div>`;
     } else { container.innerHTML = ''; }
     updateLiveSummary();
 }
     function handleModelChange() {
-        const model = document.getElementById('monitoringModel').value;
-        const vm7Container = document.getElementById('vm7OptionsContainer');
-        
-        if (model === 'VM 7') {
-            renderVM7Options();
-            vm7Container.style.display = 'block';
-        } else {
-            vm7Container.style.display = 'none';
-            vm7Container.innerHTML = '';
-        }
-        updateLiveSummary();
+    const modelEl = document.getElementById('monitoringModel');
+    const model = modelEl.value;
+    const vm7Container = document.getElementById('vm7OptionsContainer');
+    const dsBtn = document.getElementById('monitoringDatasheetBtn');
+    
+    // Datasheet Button Logic
+    if (model && datasheetLinks[model]) {
+        dsBtn.style.display = "block";
+        dsBtn.onclick = () => window.open(datasheetLinks[model], '_blank');
+        dsBtn.innerHTML = `📄 View ${model} Specs`;
+    } else {
+        if(dsBtn) dsBtn.style.display = "none";
     }
+    
+    // VM7 Specific modules
+    if (model === 'VM 7') {
+        renderVM7Options();
+        vm7Container.style.display = 'block';
+    } else {
+        vm7Container.style.display = 'none';
+        vm7Container.innerHTML = '';
+    }
+    updateLiveSummary();
+}
 
     function renderVM7Options() {
         const container = document.getElementById('vm7OptionsContainer');
@@ -865,23 +927,36 @@ function renderMakeOptions() {
 
     // --- UTILITY & DATA FUNCTIONS ---
     function validateDetails(isFinal = false) {
-        const fields = ["Engineer", "Email", "Offer_No", "customer", "project", "ref", "branch"];
-        for (const fieldId of fields) {
-            if (!document.getElementById(fieldId).value.trim()) {
-                if (isFinal) {
-                    navigateToStep(1);
-                    alert(`Please enter a value for ${fieldId.replace('_', ' ')}.`);
-                } return false;
-            }
-        } return true;
+        //const fields = ["Engineer", "Email", "Offer_No", "customer", "project", "ref", "branch"];
+        // for (const fieldId of fields) {
+        //     if (!document.getElementById(fieldId).value.trim()) {
+        //         if (isFinal) {
+        //             navigateToStep(1);
+        //             alert(`Please enter a value for ${fieldId.replace('_', ' ')}.`);
+        //         } return false;
+        //     }
+        // } 
+        return true;
     }
     
-    function updateOptions() {let make = document.getElementById("make").value; let rangeSelect = document.getElementById("range");
+    function updateOptions() {
+    let make = document.getElementById("make").value; 
+    let rangeSelect = document.getElementById("range");
+    const dsBtn = document.getElementById("staticDatasheetBtn");
+
+    // Handle Datasheet Button
+    if (make) {
+        let key = make.includes("Shinkawa") ? "Shinkawa: CBT" : "FM-LPS";
+        dsBtn.style.display = "block";
+        dsBtn.onclick = () => window.open(datasheetLinks[key], '_blank');
+    } else {
+        dsBtn.style.display = "none";
+    }
+
     rangeSelect.innerHTML = "";
     document.getElementById("shinkawaOpts").style.display = make.includes("Shinkawa") ? "block" : "none";
     let ranges = make.includes("Shinkawa") ? [10, 20, 25, 50, 100] : [10, 15, 20, 25, 30, 40, 50];
     ranges.forEach(v => { let opt = document.createElement("option"); opt.value = v; opt.text = `0-${v} mm/sec`; rangeSelect.appendChild(opt); });
-    // This now calls your code generator, which in turn calls updateLiveSummary()
     generateSafeLoopPoweredCode(); 
 }
 
@@ -920,84 +995,50 @@ function generateSafeLoopPoweredCode() {
 }
 
     function toggleExt() {
-        const extOpts = document.getElementById("extOptions");
-        const extSelect = document.getElementById("extCable");
-        const hazMake = document.querySelector("#hazMake");
-        const isMonitran = hazMake ? hazMake.value === "Monitran" : false;
-        document.getElementById("extCableSection").style.display = isMonitran ? "none" : "block";
-        extOpts.style.display = extSelect.value === "YES" ? "block" : "none";
-        updateLiveSummary();
-    }
+    const extOpts = document.getElementById("extOptions");
+    const extSelect = document.getElementById("extCable");
+    const extDsBtn = document.getElementById("extDatasheetBtn");
+    
+    extDsBtn.style.display = extSelect.value === "YES" ? "block" : "none";
+    extOpts.style.display = extSelect.value === "YES" ? "block" : "none";
+    updateLiveSummary();
+}
 
     function renderHazardousDetails() {
     const makeEl = document.getElementById("hazMake");
-    // Stop if the element doesn't exist (e.g., on initial page load)
     if (!makeEl) return;
     
     const make = makeEl.value;
     const detailsContainer = document.getElementById("hazardousDetails");
-    let html = '';
-
-    if (make === "Monitran") {
-        html = `
-            <div class="form-group">
-                <br><label>MOUNTING</label>
-                <select id="hazMonitranMount" onchange="generateHazLoopPoweredCode()">
-                    <option value="IC">1/4" UNF Female</option>
-                    <option value="ICQ">Q/F Female</option>
-                </select>
-            </div><br>
-            <div class="form-group">
-                <label>VELOCITY (mm/s rms)</label>
-                <select id="hazMonitranXX" onchange="generateHazLoopPoweredCode()">
-                    <option value="10">0-10</option>
-                    <option value="20">0-20</option>
-                    <option value="25">0-25</option>
-                    <option value="50">0-50</option>
-                    <option value="100">0-100</option>
-                </select>
-            </div>
-        `;
-    } else if (make === "Wilcoxon") {
-        html = `
-            <div class="form-group">
-                <br><label>OUTPUT TYPE</label>
-                <select id="hazWilcoxonX" onchange="generateHazLoopPoweredCode()">
-                    <option value="R">RMS (R)</option>
-                    <option value="P">Peak (P)</option>
-                </select>
-            </div><br>
-            <div class="form-group">
-                <label>FULL SCALE</label>
-                <select id="hazWilcoxonYY" onchange="generateHazLoopPoweredCode()">
-                    <option value="05">0.5 ips (12.8 mm/sec)</option>
-                    <option value="10">1.0 ips (25.4 mm/sec)</option>
-                    <option value="20">2.0 ips (50.8 mm/sec)</option>
-                    <option value="30">3.0 ips (76.2 mm/sec)</option>
-                </select>
-            </div>
-        `;
+    const dsBtn = document.getElementById("staticDatasheetBtn");
+    
+    // Update Datasheet Button visibility and link
+    if (make && datasheetLinks[make]) {
+        dsBtn.style.display = "block";
+        dsBtn.onclick = () => window.open(datasheetLinks[make], '_blank');
+        dsBtn.innerHTML = `📄 View ${make} Datasheet`;
     } else {
-        html = ''; // Clear options if "Select" is chosen
+        dsBtn.style.display = "none";
+    }
+    
+    let html = '';
+    if (make === "Monitran") {
+        html = `<div class="form-group"><br><label>MOUNTING</label><select id="hazMonitranMount" onchange="generateHazLoopPoweredCode()"><option value="IC">1/4" UNF Female</option><option value="ICQ">Q/F Female</option></select></div><br><div class="form-group"><label>VELOCITY (mm/s rms)</label><select id="hazMonitranXX" onchange="generateHazLoopPoweredCode()"><option value="10">0-10</option><option value="20">0-20</option><option value="25">0-25</option><option value="50">0-50</option><option value="100">0-100</option></select></div>`;
+    } else if (make === "Wilcoxon") {
+        html = `<div class="form-group"><br><label>OUTPUT TYPE</label><select id="hazWilcoxonX" onchange="generateHazLoopPoweredCode()"><option value="R">RMS (R)</option><option value="P">Peak (P)</option></select></div><br><div class="form-group"><label>FULL SCALE</label><select id="hazWilcoxonYY" onchange="generateHazLoopPoweredCode()"><option value="05">0.5 ips (12.8 mm/sec)</option><option value="10">1.0 ips (25.4 mm/sec)</option><option value="20">2.0 ips (50.8 mm/sec)</option><option value="30">3.0 ips (76.2 mm/sec)</option></select></div>`;
     }
 
     detailsContainer.innerHTML = html;
-    generateHazLoopPoweredCode(); // Generate code based on new options
+    generateHazLoopPoweredCode();
     
-    // NOTE: Monitran (MTN/2285IC) has an integral cable.
-    // We should hide the separate "Extension Cable" option for it.
-    // Wilcoxon (PC420) is a connector type and *does* need an extension cable
     const extCableSection = document.getElementById("extCableSection");
     const extOptions = document.getElementById("extOptions");
-    
     if (make === "Monitran") {
         extCableSection.style.display = "none";
         extOptions.style.display = "none";
-        // Reset the selection so it doesn't stay in the summary
         document.getElementById("extCable").value = "NO"; 
     } else {
         extCableSection.style.display = "block";
-        // Let toggleExt() handle showing/hiding the options
         toggleExt(); 
     }
 }
@@ -1044,19 +1085,36 @@ function generateHazLoopPoweredCode() {
     const allGenerators = {};
 
     function showGeneratorPanel() {
-        const selectedModel = document.getElementById('sensor_model_selector').value;
-        document.querySelectorAll('.generator-panel').forEach(panel => {
-            panel.style.display = 'none';
-        });
-        if (selectedModel) {
-            const panel = document.getElementById(`generator-${selectedModel}`);
-            if(panel) {
-                panel.style.display = 'block';
-                allGenerators[selectedModel].generateCode();
+    const selectedModel = document.getElementById('sensor_model_selector').value;
+    document.querySelectorAll('.generator-panel').forEach(panel => {
+        panel.style.display = 'none';
+    });
+    
+    if (selectedModel) {
+        const panel = document.getElementById(`generator-${selectedModel}`);
+        if(panel) {
+            panel.style.display = 'block';
+            
+            // --- Datasheet Button Logic ---
+            const header = panel.querySelector('.card-header h3');
+            // Remove existing button if any
+            const existingBtn = panel.querySelector('.datasheet-btn');
+            if(existingBtn) existingBtn.remove();
+            
+            if (datasheetLinks[selectedModel]) {
+                const btn = document.createElement('button');
+                btn.className = 'datasheet-btn';
+                btn.innerHTML = '📄 View Datasheet';
+                btn.onclick = () => window.open(datasheetLinks[selectedModel], '_blank');
+                header.parentNode.appendChild(btn);
             }
+            // ------------------------------
+
+            allGenerators[selectedModel].generateCode();
         }
-        updateLiveSummary();
     }
+    updateLiveSummary();
+}
     
     function createGeneratorHTML() {
         const wrapper = document.getElementById('code_generators_wrapper');
@@ -1589,7 +1647,7 @@ function generateHazLoopPoweredCode() {
         ['a', 'b'].forEach(p => document.getElementById(`${this.prefix}-${p}`).addEventListener('change', () => this.generateCode()));
     }
 };      
-        allGenerators['CA-72'] = {
+        allGenerators['Shinkawa: CA-72'] = {
     prefix: 'ca72',
     fieldsHTML: `<div class="form-group"><label>Cable Type</label><select id="ca72-x"><option value="1">Connector</option><option value="2">With integral cable</option></select></div>`,
     updateDependentOptions: function() {},
@@ -2036,7 +2094,7 @@ allGenerators['FL-202F08/E50 [Linear Range: 2 mm, Tip Dia.: 8mm]'] = {
     summary += `1. SENSOR:\n ${sensorDetails}\n\n`;
 
     // --- NEW DETAILED ACCESSORIES SECTION ---
-    let accessoriesSummary = "2. ACCESSORIES\n\n";
+    let accessoriesSummary = "2. ACCESSORIES\n";
 
     // Extension Cable
   const extRequired = document.getElementById('extCable').value === 'YES';
@@ -2060,7 +2118,7 @@ allGenerators['FL-202F08/E50 [Linear Range: 2 mm, Tip Dia.: 8mm]'] = {
     accessoriesSummary += " Mounting Pad\n";
     
     accessoriesSummary += `  If required: ${padRequired ? 'Yes' : 'No'}\n`;
-    if (padRequired) 
+    if (padRequired)
     {
       const padMocEl = document.getElementById('padMoc');
       accessoriesSummary += `  MOC: ${padMocEl.value || 'N/A'}\n`;
